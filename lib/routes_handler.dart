@@ -12,7 +12,7 @@ class RoutesHandler {
   static Route<dynamic> handleRoute(RouteSettings settings) {
     switch (settings.name) {
       case homeRoute:
-        _navigate(Home());
+        return _navigate(Home());
     }
   }
 }
