@@ -39,17 +39,67 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text('Shop App'),
       ),
-      body: SafeArea(
-        child: ListView.builder(
-          padding: const EdgeInsets.only(top: 0),
-          itemBuilder: (context, index) => ProductCard(dummyProducts[index]),
-          itemCount: dummyProducts.length,
-          physics: const BouncingScrollPhysics(),
-        ),
+      body: Builder(
+        builder: (builderContext) {
+          final currentScaffoldState = Scaffold.of(builderContext);
+          return ListView.builder(
+            padding: const EdgeInsets.only(top: 0),
+            itemBuilder: (_, index) {
+              return Dismissible(
+                key: ValueKey(dummyProducts[index].id),
+                // TODO: implement confirmDismiss function
+                confirmDismiss: (_) async {
+                  _showSnackBar(
+                    currentScaffoldState,
+                    'Salvo na sacolinha: ${dummyProducts[index].title}',
+                  );
+                  return false;
+                },
+                direction: DismissDirection.startToEnd,
+                background: Container(
+                  padding: const EdgeInsets.only(left: 10),
+                  color: Theme.of(context).accentColor,
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.shopping_bag, size: 40),
+                      Text(
+                        'Salvar na sacolinha',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      )
+                    ],
+                  ),
+                ),
+                // TODO: implement onTap function
+                child: GestureDetector(
+                  child: ProductCard(dummyProducts[index]),
+                  onTap: () {},
+                  onDoubleTap: () {
+                    _showSnackBar(currentScaffoldState,
+                        'Item curtido: ${dummyProducts[index].title}');
+                  },
+                ),
+              );
+            },
+            itemCount: dummyProducts.length,
+            physics: const BouncingScrollPhysics(),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showSnackBar(ScaffoldState scaffold, String content) {
+    scaffold.hideCurrentSnackBar();
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(content),
+        duration: Duration(seconds: 2),
       ),
     );
   }

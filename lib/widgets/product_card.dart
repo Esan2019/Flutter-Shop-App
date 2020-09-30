@@ -10,7 +10,6 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final totalScreenHeight = mediaQuery.size.height;
-    final currentScaffoldState = Scaffold.of(context);
 
     ////// STYLING //////
     const productTitleStyle = TextStyle(
@@ -85,7 +84,7 @@ class ProductCard extends StatelessWidget {
     );
 
     ////// PRODUCT CARD //////
-    final productCard = Card(
+    return Card(
       elevation: 12,
       margin: const EdgeInsets.all(10),
       child: Stack(
@@ -102,54 +101,6 @@ class ProductCard extends StatelessWidget {
           ),
           cardBottomBar
         ],
-      ),
-    );
-
-    ////// GESTURES WIDGETS //////
-    return Dismissible(
-      key: ValueKey(product.id),
-      // TODO: implement confirmDismiss function
-      confirmDismiss: (_) async {
-        _showSnackBar(
-          currentScaffoldState,
-          'Salvo na sacolinha: ${product.title}',
-        );
-        return false;
-      },
-      direction: DismissDirection.startToEnd,
-      background: Container(
-        padding: const EdgeInsets.only(left: 10),
-        color: Theme.of(context).accentColor,
-        alignment: Alignment.centerLeft,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.shopping_bag, size: 40),
-            Text(
-              'Salvar na sacolinha',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
-      ),
-      // TODO: implement onTap function
-      child: GestureDetector(
-        child: productCard,
-        onDoubleTap: () {
-          _showSnackBar(currentScaffoldState, 'Item curtido: ${product.title}');
-        },
-      ),
-    );
-  }
-
-  ////// METHODS //////
-  void _showSnackBar(ScaffoldState scaffold, String content) {
-    scaffold.hideCurrentSnackBar();
-    scaffold.showSnackBar(
-      SnackBar(
-        content: Text(content),
-        duration: Duration(seconds: 2),
       ),
     );
   }
