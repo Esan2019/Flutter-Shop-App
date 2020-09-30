@@ -12,7 +12,7 @@ class ShopApp extends StatelessWidget {
       title: 'Shop App',
       theme: ThemeData(
         primaryColor: const Color(0xFFeebdff),
-        accentColor: const Color(0xFFdf99f7),
+        accentColor: const Color(0xFF9d45ba),
         appBarTheme: AppBarTheme(color: const Color(0xFFeebdff)),
         scaffoldBackgroundColor: const Color(0xFFf5d9ff),
         fontFamily: 'Quicksand'
