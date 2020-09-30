@@ -10,6 +10,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final totalScreenHeight = mediaQuery.size.height;
+    final currentScaffoldState = Scaffold.of(context);
 
     ////// STYLING //////
     const productTitleStyle = TextStyle(
@@ -37,7 +38,6 @@ class ProductCard extends StatelessWidget {
         ),
       ],
     );
-    ////// END OF STYLING //////
 
     ////// CARD BOTTOM BAR //////
     final cardBottomBar = Positioned(
@@ -56,7 +56,6 @@ class ProductCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-
             ////// TITLE LABEL //////
             Container(
               height: totalScreenHeight * 0.035,
@@ -84,20 +83,15 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
-    ////// END OF CARD BOTTOM BAR //////
 
     ////// PRODUCT CARD //////
-    return Card(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(6),
-        ),
-      ),
+    final productCard = Card(
       elevation: 12,
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       child: Stack(
         children: [
           Container(
+            width: double.infinity,
             height: totalScreenHeight * 0.5,
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -110,6 +104,53 @@ class ProductCard extends StatelessWidget {
         ],
       ),
     );
-    ////// END OF PRODUCT CARD //////
+
+    ////// GESTURES WIDGETS //////
+    return Dismissible(
+      key: ValueKey(product.id),
+      // TODO: implement confirmDismiss function
+      confirmDismiss: (_) async {
+        _showSnackBar(
+          currentScaffoldState,
+          'Salvo na sacolinha: ${product.title}',
+        );
+        return false;
+      },
+      direction: DismissDirection.startToEnd,
+      background: Container(
+        padding: const EdgeInsets.only(left: 10),
+        color: Theme.of(context).accentColor,
+        alignment: Alignment.centerLeft,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.shopping_bag, size: 40),
+            Text(
+              'Salvar na sacolinha',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            )
+          ],
+        ),
+      ),
+      // TODO: implement onTap function
+      child: GestureDetector(
+        child: productCard,
+        onDoubleTap: () {
+          _showSnackBar(currentScaffoldState, 'Item curtido: ${product.title}');
+        },
+      ),
+    );
+  }
+
+  ////// METHODS //////
+  void _showSnackBar(ScaffoldState scaffold, String content) {
+    scaffold.hideCurrentSnackBar();
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(content),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 }
