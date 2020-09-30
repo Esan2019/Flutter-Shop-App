@@ -14,7 +14,6 @@ class ProductCard extends StatelessWidget {
     ////// STYLING //////
     const productTitleStyle = TextStyle(
       color: const Color(0xFFFFFFFF),
-      fontFamily: 'Quicksand',
       fontWeight: FontWeight.w500,
       shadows: [
         Shadow(
@@ -30,7 +29,6 @@ class ProductCard extends StatelessWidget {
 
     const productPriceStyle = TextStyle(
       color: const Color(0xFFFFFFFF),
-      fontFamily: 'Quicksand',
       fontWeight: FontWeight.bold,
       shadows: [
         Shadow(

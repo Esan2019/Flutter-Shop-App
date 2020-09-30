@@ -40,16 +40,8 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFFf5d9ff),
       appBar: AppBar(
-        title: Text(
-          'Shop App',
-          style: TextStyle(
-            color: const Color(0xFF000000),
-            fontFamily: 'Quicksand'
-          ),
-        ),
-        backgroundColor: const Color(0xFFeebdff),
+        title: Text('Shop App'),
       ),
       body: SafeArea(
         child: ListView.builder(
