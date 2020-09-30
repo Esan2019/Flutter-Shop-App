@@ -1,45 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'package:shop/widgets/product_card.dart';
+import 'package:provider/provider.dart';
 
 import '../models/product.dart';
 import '../widgets/product_card.dart';
 import '../routes_handler.dart';
+import '../providers/products.dart';
 
 class Home extends StatelessWidget {
-  final dummyProducts = [
-    Product(
-      id: 1,
-      title: 'Terno de alfaiataria verde musgo',
-      description: 'Sem descrição',
-      price: 29.99,
-      imageUrl: 'https://i.imgur.com/94qtexK.jpg',
-    ),
-    Product(
-      id: 2,
-      title: 'Vestido branco longo com fenda e decote profundo',
-      description: 'Sem descrição',
-      price: 59.99,
-      imageUrl: 'https://i.imgur.com/4gzMFfk.jpg',
-    ),
-    Product(
-      id: 3,
-      title: 'Camisa com amarração lateral e detalhes em escrita',
-      description: 'Sem descrição',
-      price: 19.99,
-      imageUrl: 'https://i.imgur.com/dbJldKH.jpg',
-    ),
-    Product(
-      id: 4,
-      title: 'Blusa de mangas bufantes e botões',
-      description: 'Sem descrição',
-      price: 49.99,
-      imageUrl: 'https://i.imgur.com/F0YgiZ1.jpg',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final products = Provider.of<Products>(context).products;
     return Scaffold(
       appBar: AppBar(
         title: Text('Shop App'),
@@ -51,12 +22,12 @@ class Home extends StatelessWidget {
             padding: const EdgeInsets.only(top: 0),
             itemBuilder: (_, index) {
               return Dismissible(
-                key: ValueKey(dummyProducts[index].id),
+                key: ValueKey(products[index].id),
                 // TODO: implement confirmDismiss function
                 confirmDismiss: (_) async {
                   _showSnackBar(
                     currentScaffoldState,
-                    'Salvo na sacolinha: ${dummyProducts[index].title}',
+                    'Salvo na sacolinha: ${products[index].title}',
                   );
                   return false;
                 },
@@ -78,20 +49,20 @@ class Home extends StatelessWidget {
                   ),
                 ),
                 child: GestureDetector(
-                  child: ProductCard(dummyProducts[index]),
+                  child: ProductCard(products[index]),
                   onTap: () => _navigateToOverviewScreen(
                     context,
-                    dummyProducts[index],
+                    products[index],
                   ),
                   // TODO: implement onDoubleTap function
                   onDoubleTap: () {
                     _showSnackBar(currentScaffoldState,
-                        'Item curtido: ${dummyProducts[index].title}');
+                        'Item curtido: ${products[index].title}');
                   },
                 ),
               );
             },
-            itemCount: dummyProducts.length,
+            itemCount: products.length,
             physics: const BouncingScrollPhysics(),
           );
         },
