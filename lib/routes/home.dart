@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:shop/widgets/product_card.dart';
 
 import '../models/product.dart';
 import '../widgets/product_card.dart';
+import '../routes_handler.dart';
 
 class Home extends StatelessWidget {
   final dummyProducts = [
@@ -75,10 +77,13 @@ class Home extends StatelessWidget {
                     ],
                   ),
                 ),
-                // TODO: implement onTap function
                 child: GestureDetector(
                   child: ProductCard(dummyProducts[index]),
-                  onTap: () {},
+                  onTap: () => _navigateToOverviewScreen(
+                    context,
+                    dummyProducts[index],
+                  ),
+                  // TODO: implement onDoubleTap function
                   onDoubleTap: () {
                     _showSnackBar(currentScaffoldState,
                         'Item curtido: ${dummyProducts[index].title}');
@@ -102,5 +107,11 @@ class Home extends StatelessWidget {
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  void _navigateToOverviewScreen(
+      BuildContext context, Product selectedProduct) {
+    Navigator.of(context)
+        .pushNamed(productOverviewRoute, arguments: selectedProduct);
   }
 }
