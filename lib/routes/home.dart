@@ -51,7 +51,6 @@ class Home extends StatelessWidget {
                   onTap: () {
                     _navigateToOverviewScreen(context, products[index]);
                   },
-                  // TODO: implement onDoubleTap function
                   onDoubleTap: () {
                     products[index].toggleFavoriteStatus();
                     _showSnackBar(currentScaffoldState,
