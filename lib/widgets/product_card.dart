@@ -1,42 +1,40 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../models/product.dart';
 
-class ProductCard extends StatelessWidget {
-  final Product product;
-  ProductCard(this.product);
+const productTitleStyle = TextStyle(
+  color: const Color(0xFFFFFFFF),
+  fontWeight: FontWeight.w500,
+  shadows: [
+    Shadow(
+      color: const Color(0xFF000000),
+      blurRadius: 8,
+    ),
+    Shadow(
+      color: const Color(0xFF000000),
+      blurRadius: 8,
+    ),
+  ],
+);
 
+const productPriceStyle = TextStyle(
+  color: const Color(0xFFFFFFFF),
+  fontWeight: FontWeight.bold,
+  shadows: [
+    Shadow(
+      color: const Color(0xFF000000),
+      blurRadius: 8,
+    ),
+  ],
+);
+
+class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final totalScreenHeight = mediaQuery.size.height;
-
-    ////// STYLING //////
-    const productTitleStyle = TextStyle(
-      color: const Color(0xFFFFFFFF),
-      fontWeight: FontWeight.w500,
-      shadows: [
-        Shadow(
-          color: const Color(0xFF000000),
-          blurRadius: 8,
-        ),
-        Shadow(
-          color: const Color(0xFF000000),
-          blurRadius: 8,
-        ),
-      ],
-    );
-
-    const productPriceStyle = TextStyle(
-      color: const Color(0xFFFFFFFF),
-      fontWeight: FontWeight.bold,
-      shadows: [
-        Shadow(
-          color: const Color(0xFF000000),
-          blurRadius: 8,
-        ),
-      ],
-    );
+    final totalScreenHeight = MediaQuery.of(context).size.height;
+    final product = Provider.of<Product>(context, listen: false);
 
     ////// CARD BOTTOM BAR //////
     final cardBottomBar = Positioned(
@@ -48,9 +46,7 @@ class ProductCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFf5d9ff).withOpacity(0.65),
           boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.3),
-            ),
+            BoxShadow(color: const Color(0xFF000000).withOpacity(0.3))
           ],
         ),
         child: Column(
@@ -58,33 +54,41 @@ class ProductCard extends StatelessWidget {
             ////// TITLE LABEL //////
             Container(
               height: totalScreenHeight * 0.035,
-              child: FittedBox(
-                child: Text(
-                  product.title,
-                  style: productTitleStyle,
-                ),
-              ),
               alignment: Alignment.bottomLeft,
+              child: FittedBox(
+                child: Text(product.title, style: productTitleStyle),
+              ),
             ),
 
-            ////// PRICE LABEL //////
+            ////// PRICE AND ICONS LABEL //////
             Container(
               height: totalScreenHeight * 0.035,
+              alignment: Alignment.bottomLeft,
               child: FittedBox(
-                child: Text(
-                  'R\$ ${product.price}',
-                  style: productPriceStyle,
+                child: Consumer<Product>(
+                  builder: (_, product, child) {
+                    child =
+                        Text('R\$ ${product.price}', style: productPriceStyle);
+
+                    final List<Widget> icons = [];
+
+                    if (product.isFavorite) {
+                      icons.add(Icon(Icons.favorite, color: Colors.pink));
+                      icons.add(SizedBox(width: 10));
+                    }
+
+                    return Row(children: [...icons, child]);
+                  },
                 ),
               ),
-              alignment: Alignment.bottomLeft,
             ),
           ],
         ),
       ),
     );
 
-    ////// PRODUCT CARD //////
-    return Card(
+    ////// CARD //////
+    final card = Card(
       elevation: 12,
       margin: const EdgeInsets.all(10),
       child: Stack(
@@ -93,15 +97,14 @@ class ProductCard extends StatelessWidget {
             width: double.infinity,
             height: totalScreenHeight * 0.5,
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(product.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
+                image: DecorationImage(
+                    image: NetworkImage(product.imageUrl), fit: BoxFit.cover)),
           ),
           cardBottomBar
         ],
       ),
     );
+
+    return card;
   }
 }
