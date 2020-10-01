@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import 'package:provider/provider.dart';
+
 import './routes/home.dart';
 import './routes/product_overview.dart';
 import './models/product.dart';
@@ -16,9 +18,15 @@ class RoutesHandler {
     switch (settings.name) {
       case homeRoute:
         return _navigate(Home());
+
       case productOverviewRoute:
         final selectedProduct = settings.arguments as Product;
-        return _navigate(ProductOverview(selectedProduct));
+        return _navigate(
+          ChangeNotifierProvider.value(
+            value: selectedProduct,
+            child: ProductOverview(),
+          ),
+        );
     }
   }
 }
