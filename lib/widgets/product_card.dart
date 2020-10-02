@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shop/providers/products.dart';
 
 import '../models/product.dart';
+import '../routes_handler.dart';
 
 const productTitleStyle = TextStyle(
   color: const Color(0xFFFFFFFF),
@@ -31,10 +33,13 @@ const productPriceStyle = TextStyle(
 );
 
 class ProductCard extends StatelessWidget {
+  final Product product;
+  ProductCard(this.product);
+
   @override
   Widget build(BuildContext context) {
     final totalScreenHeight = MediaQuery.of(context).size.height;
-    final product = Provider.of<Product>(context, listen: false);
+    final productsProvider = Provider.of<Products>(context);
 
     ////// CARD BOTTOM BAR //////
     final cardBottomBar = Positioned(
@@ -65,20 +70,11 @@ class ProductCard extends StatelessWidget {
               height: totalScreenHeight * 0.035,
               alignment: Alignment.bottomLeft,
               child: FittedBox(
-                child: Consumer<Product>(
-                  builder: (_, product, child) {
-                    child =
-                        Text('R\$ ${product.price}', style: productPriceStyle);
-
-                    final List<Widget> icons = [];
-
-                    if (product.isFavorite) {
-                      icons.add(Icon(Icons.favorite, color: Colors.pink));
-                      icons.add(SizedBox(width: 10));
-                    }
-
-                    return Row(children: [...icons, child]);
-                  },
+                child: Row(
+                  children: [
+                    ...getIcons(product),
+                    Text('R\$ ${product.price}', style: productPriceStyle)
+                  ],
                 ),
               ),
             ),
@@ -105,6 +101,59 @@ class ProductCard extends StatelessWidget {
       ),
     );
 
-    return card;
+    final cardWrappedWithGestures = Dismissible(
+      key: ValueKey(product.id),
+      // TODO: implement confirmDismiss function
+      confirmDismiss: (_) async {
+        _showSnackBar(
+            Scaffold.of(context), 'Salvo na sacolinha: ${product.title}');
+        return false;
+      },
+      direction: DismissDirection.startToEnd,
+      background: Container(
+        padding: const EdgeInsets.only(left: 10),
+        color: Theme.of(context).accentColor,
+        alignment: Alignment.centerLeft,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.shopping_bag, size: 40),
+            Text('Salvar na sacolinha',
+                style: TextStyle(fontWeight: FontWeight.w500))
+          ],
+        ),
+      ),
+      child: GestureDetector(
+        child: card,
+        onTap: () => _navigateToOverviewScreen(context, product),
+        onDoubleTap: productsProvider.toggleFavoriteStatus(product),
+      ),
+    );
+
+    return cardWrappedWithGestures;
   }
+}
+
+List<Widget> getIcons(Product product) {
+  final List<Widget> icons = [];
+
+  if (product.isFavorite) {
+    icons.add(Icon(Icons.favorite, color: Colors.pink));
+    icons.add(SizedBox(width: 10));
+  }
+
+  return icons;
+}
+
+void _showSnackBar(ScaffoldState scaffold, String content) {
+  scaffold.hideCurrentSnackBar();
+  scaffold.showSnackBar(
+    SnackBar(content: Text(content), duration: Duration(seconds: 2)),
+  );
+}
+
+void _navigateToOverviewScreen(BuildContext context, Product selectedProduct) {
+  Navigator.of(context)
+      .pushNamed(productOverviewRoute, arguments: selectedProduct);
 }
