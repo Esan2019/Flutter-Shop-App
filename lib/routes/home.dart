@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/product.dart';
 import '../widgets/product_card.dart';
+import '../widgets/drawer.dart';
 import '../routes_handler.dart';
 import '../providers/products.dart';
 
@@ -13,8 +14,17 @@ class Home extends StatelessWidget {
     final products = Provider.of<Products>(context).products;
 
     return Scaffold(
+      drawer: MainDrawer(),
       appBar: AppBar(
         title: Text('Shop App'),
+        actions: [
+          FlatButton(
+            child: Row(
+              children: [Icon(Icons.shopping_bag), Text('Sacolinha')],
+            ),
+            onPressed: () {},
+          )
+        ],
       ),
       body: Builder(
         builder: (builderContext) {
@@ -51,11 +61,7 @@ class Home extends StatelessWidget {
                   onTap: () {
                     _navigateToOverviewScreen(context, products[index]);
                   },
-                  onDoubleTap: () {
-                    products[index].toggleFavoriteStatus();
-                    _showSnackBar(currentScaffoldState,
-                        'Item curtido: ${products[index].title}');
-                  },
+                  onDoubleTap: () => products[index].toggleFavoriteStatus(),
                 ),
               );
             },
