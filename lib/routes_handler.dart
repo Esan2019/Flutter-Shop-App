@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 
 import './routes/home.dart';
 import './routes/product_overview.dart';
+import './routes/favorites.dart';
 import './models/product.dart';
 
 const homeRoute = '/';
 const productOverviewRoute = '/product-overview';
+const favoritesRoute = '/favorites';
 
 class RoutesHandler {
   static Route<dynamic> _navigate(Widget destinationPage) {
@@ -27,6 +29,9 @@ class RoutesHandler {
             child: ProductOverview(),
           ),
         );
+
+      case favoritesRoute:
+        return _navigate(Favorites());
     }
   }
 }
