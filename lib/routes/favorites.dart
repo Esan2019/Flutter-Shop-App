@@ -8,6 +8,7 @@ import '../providers/products.dart';
 import '../widgets/product_card.dart';
 
 double totalScreenHeight;
+Products productsProvider;
 
 class Favorites extends StatelessWidget {
   @override
@@ -15,7 +16,9 @@ class Favorites extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     totalScreenHeight = mediaQuery.size.height - mediaQuery.padding.top;
 
-    var favoriteProducts = Provider.of<Products>(context).favoriteProducts;
+    productsProvider = Provider.of<Products>(context);
+    final favoriteProducts = productsProvider.favoriteProducts;
+
     final bool hasAnyFavorite = favoriteProducts.length >= 1;
 
     return Scaffold(
@@ -28,17 +31,15 @@ class Favorites extends StatelessWidget {
 
 class FavoritesList extends StatelessWidget {
   final List<Product> products;
-  FavoritesList(this.products);
+  const FavoritesList(this.products);
 
   @override
   Widget build(BuildContext context) {
+    var products = Provider.of<Products>(context).favoriteProducts;
     return ListView.builder(
       itemCount: products.length,
       itemBuilder: (_, index) {
-        return ChangeNotifierProvider.value(
-          value: products.elementAt(index),
-          child: ProductCard(),
-        );
+        return ProductCard(products.elementAt(index));
       },
     );
   }
