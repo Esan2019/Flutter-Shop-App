@@ -23,12 +23,7 @@ class RoutesHandler {
 
       case productOverviewRoute:
         final selectedProduct = settings.arguments as Product;
-        return _navigate(
-          ChangeNotifierProvider.value(
-            value: selectedProduct,
-            child: ProductOverview(),
-          ),
-        );
+        return _navigate(ProductOverview(selectedProduct));
 
       case favoritesRoute:
         return _navigate(Favorites());

@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shop/providers/products.dart';
 
 import '../models/product.dart';
 
 double totalScreenHeight;
 double totalScreenWidth;
 const whitishColor = const Color(0xFFebebeb);
-Product product;
 
 class ProductOverview extends StatelessWidget {
+  final Product product;
+  ProductOverview(this.product);
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     totalScreenHeight = mediaQuery.size.height;
     totalScreenWidth = mediaQuery.size.width;
-    product = Provider.of<Product>(context, listen: false);
+    final productsProvider = Provider.of<Products>(context);
 
     return Scaffold(
       body: SafeArea(
@@ -33,7 +36,10 @@ class ProductOverview extends StatelessWidget {
                     width: totalScreenWidth,
                     child: Image.network(product.imageUrl, fit: BoxFit.cover),
                   ),
-                  FavoriteButton(),
+                  FavoriteButton(
+                    productsProvider.toggleFavoriteStatus(product),
+                    product.isFavorite
+                  ),
                 ],
               ),
             ),
@@ -51,7 +57,7 @@ class ProductOverview extends StatelessWidget {
             ),
             Spacer(),
 
-            AddToCartButton(),
+            AddToCartButton(product.price),
             SizedBox(height: totalScreenHeight * 0.01)
           ],
         ),
@@ -60,7 +66,16 @@ class ProductOverview extends StatelessWidget {
   }
 }
 
-class FavoriteButton extends StatelessWidget {
+class FavoriteButton extends StatefulWidget {
+  final Function onPressed;
+  final bool isFavorite;
+  FavoriteButton(this.onPressed, this.isFavorite);
+
+  @override
+  _FavoriteButtonState createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -75,14 +90,16 @@ class FavoriteButton extends StatelessWidget {
             ]),
         height: totalScreenHeight * 0.08,
         width: totalScreenHeight * 0.08,
-        child: Consumer<Product>(
-          builder: (_, product, __) => IconButton(
-            color: whitishColor,
-            splashRadius: 0.01,
-            onPressed: product.toggleFavoriteStatus,
-            icon: Icon(Icons.favorite,
-                color: product.isFavorite ? Colors.pinkAccent : whitishColor),
-          ),
+        child: IconButton(
+          color: whitishColor,
+          splashRadius: 0.01,
+          onPressed: () {
+            setState(() {
+              widget.onPressed();
+            });
+          },
+          icon: Icon(Icons.favorite,
+              color: widget.isFavorite ? Colors.pinkAccent : whitishColor),
         ),
       ),
     );
@@ -90,6 +107,9 @@ class FavoriteButton extends StatelessWidget {
 }
 
 class AddToCartButton extends StatelessWidget {
+  final double price;
+  AddToCartButton(this.price);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -117,7 +137,7 @@ class AddToCartButton extends StatelessWidget {
               ),
             ]),
             Text(
-              '(R\$ ${product.price})',
+              '(R\$ $price)',
               style:
                   TextStyle(fontWeight: FontWeight.bold, color: whitishColor),
             )
