@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../widgets/product_card.dart';
 import '../widgets/drawer.dart';
+import '../widgets/badge.dart';
 import '../providers/products.dart';
+import '../providers/cart.dart';
 
 class Home extends StatelessWidget {
   @override
@@ -16,12 +18,21 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: Text('Shop App'),
         actions: [
-          FlatButton(
-            child: Row(
-              children: [Icon(Icons.shopping_bag), Text('Sacolinha')],
+          Consumer<Cart>(
+            builder: (_, cart, child) => Badge(
+              child: child,
+              value: cart.itemsCount,
             ),
-            onPressed: () {},
-          )
+            child: FlatButton(
+              child: Row(
+                children: [
+                  Icon(Icons.shopping_bag),
+                  Text('Sacolinha'),
+                ],
+              ),
+              onPressed: () {},
+            ),
+          ),
         ],
       ),
       body: ListView.builder(
