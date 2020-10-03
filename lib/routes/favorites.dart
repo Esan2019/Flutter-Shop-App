@@ -57,8 +57,9 @@ class NoFavoritesWarning extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 15),
             child: Text(
-              'Você ainda não adicionou nenhuma roupa como favorita',
+              'Quando você marcar uma roupa como favorita, ela irá aparecer aqui!',
               textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           Container(),
