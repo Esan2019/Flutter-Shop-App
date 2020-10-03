@@ -44,7 +44,7 @@ class Products with ChangeNotifier {
 
   Function toggleFavoriteStatus(Product product) {
     return () {
-      _products.firstWhere((p) => p.id == product.id)?.toggleFavoriteStatus();
+      _products.elementAt(_products.indexOf(product))..toggleFavoriteStatus();
       notifyListeners();
     };
   }
