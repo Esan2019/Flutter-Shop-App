@@ -9,7 +9,7 @@ import '../providers/products.dart';
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final products = Provider.of<Products>(context).products;
+    final products = Provider.of<Products>(context, listen: false).products;
 
     return Scaffold(
       drawer: MainDrawer(),
