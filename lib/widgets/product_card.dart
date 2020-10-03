@@ -117,9 +117,8 @@ class CardBottomBar extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: FittedBox(
                 child: Consumer2<Products, Cart>(
+                  child: Text('R\$ ${product.price}', style: productPriceStyle),
                   builder: (_, products, cart, child) {
-                    child =
-                        Text('R\$ ${product.price}', style: productPriceStyle);
                     return Row(
                       children: [
                         ...getIcons(
