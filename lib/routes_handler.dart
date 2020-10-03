@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import 'package:provider/provider.dart';
-
 import './routes/home.dart';
 import './routes/product_overview.dart';
 import './routes/favorites.dart';
