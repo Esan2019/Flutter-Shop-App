@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:shop/providers/products.dart';
 
-import '../models/product.dart';
 import '../routes_handler.dart';
+import '../models/product.dart';
+import '../providers/cart.dart';
+import '../providers/products.dart';
 
 const productTitleStyle = TextStyle(
   color: const Color(0xFFFFFFFF),
@@ -32,59 +33,33 @@ const productPriceStyle = TextStyle(
   ],
 );
 
+double totalScreenHeight;
+Products productsProvider;
+Cart cartProvider;
+
 class ProductCard extends StatelessWidget {
   final Product product;
   ProductCard(this.product);
 
   @override
   Widget build(BuildContext context) {
-    final totalScreenHeight = MediaQuery.of(context).size.height;
-    final productsProvider = Provider.of<Products>(context);
+    totalScreenHeight = MediaQuery.of(context).size.height;
+    productsProvider = Provider.of<Products>(context, listen: false);
+    cartProvider = Provider.of<Cart>(context, listen: false);
 
-    ////// CARD BOTTOM BAR //////
-    final cardBottomBar = Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFf5d9ff).withOpacity(0.65),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF000000).withOpacity(0.3))
-          ],
-        ),
-        child: Column(
-          children: [
-            ////// TITLE LABEL //////
-            Container(
-              height: totalScreenHeight * 0.035,
-              alignment: Alignment.bottomLeft,
-              child: FittedBox(
-                child: Text(product.title, style: productTitleStyle),
-              ),
-            ),
-
-            ////// PRICE AND ICONS LABEL //////
-            Container(
-              height: totalScreenHeight * 0.035,
-              alignment: Alignment.bottomLeft,
-              child: FittedBox(
-                child: Row(
-                  children: [
-                    ...getIcons(product),
-                    Text('R\$ ${product.price}', style: productPriceStyle)
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return Provider<Product>.value(
+      value: product,
+      child: CardWithGestures(),
     );
+  }
+}
 
-    ////// CARD //////
-    final card = Card(
+class CardContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
+    
+    return Card(
       elevation: 12,
       margin: const EdgeInsets.all(10),
       child: Stack(
@@ -93,64 +68,141 @@ class ProductCard extends StatelessWidget {
             width: double.infinity,
             height: totalScreenHeight * 0.5,
             decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(product.imageUrl), fit: BoxFit.cover)),
+              image: DecorationImage(
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          cardBottomBar
+          CardBottomBar()
         ],
       ),
     );
+  }
+}
 
-    final cardWrappedWithGestures = Dismissible(
-      key: ValueKey(product.id),
-      // TODO: implement confirmDismiss function
-      confirmDismiss: (_) async {
-        _showSnackBar(
-            Scaffold.of(context), 'Salvo na sacolinha: ${product.title}');
-        return false;
-      },
-      direction: DismissDirection.startToEnd,
-      background: Container(
-        padding: const EdgeInsets.only(left: 10),
-        color: Theme.of(context).accentColor,
-        alignment: Alignment.centerLeft,
+class CardBottomBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
+
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFf5d9ff).withOpacity(0.65),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF000000).withOpacity(0.3),
+            )
+          ],
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.shopping_bag, size: 40),
-            Text('Salvar na sacolinha',
-                style: TextStyle(fontWeight: FontWeight.w500))
+            ////// TITLE LABEL //////
+            Container(
+              height: totalScreenHeight * 0.035,
+              alignment: Alignment.centerLeft,
+              child: FittedBox(
+                child: Text(product.title, style: productTitleStyle),
+              ),
+            ),
+
+            ////// PRICE AND ICONS LABEL //////
+            Container(
+              height: totalScreenHeight * 0.035,
+              alignment: Alignment.centerLeft,
+              child: FittedBox(
+                child: Consumer2<Products, Cart>(
+                  builder: (_, products, cart, child) => Row(
+                    children: [
+                      ...getIcons(
+                        isFavorite: product.isFavorite,
+                        isInCart: cart.contains(product),
+                      ),
+                      Text('R\$ ${product.price}', style: productPriceStyle)
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class CardWithGestures extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
+
+    return Dismissible(
+      key: ValueKey(product.id),
+      direction: DismissDirection.startToEnd,
+      confirmDismiss: (_) async {
+        if (cartProvider.contains(product)) {
+          cartProvider.removeItem(product.id);
+          return false;
+        }
+        cartProvider.addItemOrIncreaseQuantity(product);
+        return false;
+      },
+      background: Consumer<Cart>(
+        builder: (_, cart, child) {
+          return DismissibleBackground(cart.contains(product));
+        },
+      ),
       child: GestureDetector(
-        child: card,
+        child: CardContainer(),
         onTap: () => _navigateToOverviewScreen(context, product),
         onDoubleTap: productsProvider.toggleFavoriteStatus(product),
       ),
     );
-
-    return cardWrappedWithGestures;
   }
 }
 
-List<Widget> getIcons(Product product) {
+class DismissibleBackground extends StatelessWidget {
+  final bool isInCart;
+  DismissibleBackground(this.isInCart);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 10),
+      color: isInCart ? Colors.red : Theme.of(context).accentColor,
+      alignment: Alignment.centerLeft,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.shopping_bag, size: 40),
+          Text(isInCart ? 'Remover da sacolinha' : 'Salvar na sacolinha',
+              style: TextStyle(fontWeight: FontWeight.w500))
+        ],
+      ),
+    );
+  }
+}
+
+List<Widget> getIcons({bool isFavorite, bool isInCart}) {
   final List<Widget> icons = [];
 
-  if (product.isFavorite) {
+  if (isInCart) {
+    icons.add(Icon(Icons.shopping_bag, color: const Color(0xFF2a8000)));
+    icons.add(SizedBox(width: 10));
+  }
+
+  if (isFavorite) {
     icons.add(Icon(Icons.favorite, color: Colors.pink));
     icons.add(SizedBox(width: 10));
   }
 
   return icons;
-}
-
-void _showSnackBar(ScaffoldState scaffold, String content) {
-  scaffold.hideCurrentSnackBar();
-  scaffold.showSnackBar(
-    SnackBar(content: Text(content), duration: Duration(seconds: 2)),
-  );
 }
 
 void _navigateToOverviewScreen(BuildContext context, Product selectedProduct) {
