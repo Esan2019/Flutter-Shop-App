@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:flutter/foundation.dart';
 
 import '../models/product.dart';
@@ -34,15 +32,25 @@ class Cart with ChangeNotifier {
     );
   }
 
+  int _getCartItemIndex(Product product) {
+    return _items.indexWhere((cartItem) => cartItem.id == product.id);
+  }
+
+  bool contains(Product product) {
+    return _getCartItemIndex(product).isNegative ? false : true;
+  }
+
   void addItemOrIncreaseQuantity(Product product) {
-    var cartItem = _items.firstWhere((ca) => ca.id == product.id) ?? null;
-    if (cartItem != null) {
-      cartItem.increaseQuantity();
-      notifyListeners();
-    } else {
+    final cartItemIndex = _getCartItemIndex(product);
+
+    if (cartItemIndex.isNegative) {
       _items.add(CartItem(product));
       notifyListeners();
+      return;
     }
+
+    _items.elementAt(cartItemIndex)..increaseQuantity();
+    notifyListeners();
   }
 
   void decreaseQuantity(CartItem cartItem) {
