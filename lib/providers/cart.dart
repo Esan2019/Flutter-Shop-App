@@ -32,6 +32,8 @@ class Cart with ChangeNotifier {
     );
   }
 
+  int get itemsCount => _items.length;
+
   int _getCartItemIndex(Product product) {
     return _items.indexWhere((cartItem) => cartItem.id == product.id);
   }
