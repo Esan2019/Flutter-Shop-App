@@ -26,7 +26,7 @@ class ShopApp extends StatelessWidget {
         title: 'Shop App',
         theme: ThemeData(
           primaryColor: const Color(0xFFeebdff),
-          accentColor: const Color(0xFF9d45ba),
+          accentColor: const Color(0xFFB12FEB),
           appBarTheme: AppBarTheme(
             color: const Color(0xFFeebdff),
           ),

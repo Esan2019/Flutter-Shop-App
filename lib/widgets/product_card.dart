@@ -58,7 +58,7 @@ class CardContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context);
-    
+
     return Card(
       elevation: 12,
       margin: const EdgeInsets.all(10),
@@ -117,15 +117,19 @@ class CardBottomBar extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: FittedBox(
                 child: Consumer2<Products, Cart>(
-                  builder: (_, products, cart, child) => Row(
-                    children: [
-                      ...getIcons(
-                        isFavorite: product.isFavorite,
-                        isInCart: cart.contains(product),
-                      ),
-                      Text('R\$ ${product.price}', style: productPriceStyle)
-                    ],
-                  ),
+                  builder: (_, products, cart, child) {
+                    child =
+                        Text('R\$ ${product.price}', style: productPriceStyle);
+                    return Row(
+                      children: [
+                        ...getIcons(
+                          isFavorite: product.isFavorite,
+                          isInCart: cart.contains(product),
+                        ),
+                        child
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -174,15 +178,24 @@ class DismissibleBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 10),
-      color: isInCart ? Colors.red : Theme.of(context).accentColor,
+      color: isInCart ? const Color(0xFFF2804E) : Theme.of(context).accentColor,
       alignment: Alignment.centerLeft,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.shopping_bag, size: 40),
-          Text(isInCart ? 'Remover da sacolinha' : 'Salvar na sacolinha',
-              style: TextStyle(fontWeight: FontWeight.w500))
+          Icon(
+            Icons.shopping_bag,
+            size: 40,
+            color: isInCart ? const Color(0xFFF5C6BC) : const Color(0xFFF5BCE4),
+          ),
+          Text(
+            isInCart ? 'Remover da sacolinha' : 'Salvar na sacolinha',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFF5C6BC),
+            ),
+          )
         ],
       ),
     );
@@ -193,7 +206,7 @@ List<Widget> getIcons({bool isFavorite, bool isInCart}) {
   final List<Widget> icons = [];
 
   if (isInCart) {
-    icons.add(Icon(Icons.shopping_bag, color: const Color(0xFF2a8000)));
+    icons.add(Icon(Icons.shopping_bag, color: const Color(0xFFF56713)));
     icons.add(SizedBox(width: 10));
   }
 
