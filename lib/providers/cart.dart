@@ -1,26 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/cart_item.dart';
 import '../models/product.dart';
-
-class CartItem {
-  final Product _product;
-  int _quantity;
-  CartItem(this._product) : this._quantity = 1;
-
-  double get totalValue => _product.price * _quantity;
-
-  Product get product => _product;
-
-  int get id => _product.id;
-
-  int get quantity => _quantity;
-
-  void increaseQuantity() => _quantity++;
-
-  void decreaseQuantity() {
-    if (_quantity > 1) _quantity--;
-  }
-}
 
 class Cart with ChangeNotifier {
   List<CartItem> _items = [];
@@ -41,7 +22,7 @@ class Cart with ChangeNotifier {
   int get itemsCount => _items.length;
 
   int get singleItemsCount =>
-      _items.fold(0, (count, cartItem) => count += cartItem._quantity);
+      _items.fold(0, (count, cartItem) => count += cartItem.quantity);
 
   int _getCartItemIndex(Product product) {
     return _items.indexWhere((cartItem) => cartItem.id == product.id);
