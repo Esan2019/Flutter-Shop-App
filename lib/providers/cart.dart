@@ -25,6 +25,10 @@ class Cart with ChangeNotifier {
 
   List<CartItem> get items => [..._items];
 
+  bool get isEmpty {
+    return _items.isEmpty;
+  }
+
   double get totalValue {
     return _items.fold(
       0.0,
@@ -33,6 +37,9 @@ class Cart with ChangeNotifier {
   }
 
   int get itemsCount => _items.length;
+
+  int get singleItemsCount =>
+      _items.fold(0, (count, cartItem) => count += cartItem._quantity);
 
   int _getCartItemIndex(Product product) {
     return _items.indexWhere((cartItem) => cartItem.id == product.id);
