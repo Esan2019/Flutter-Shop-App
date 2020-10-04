@@ -9,11 +9,7 @@ class CartItem {
 
   double get totalValue => _product.price * _quantity;
 
-  double get productPrice => _product.price;
-
-  String get productTitle => _product.title;
-
-  String get productImageUrl => _product.imageUrl;
+  Product get product => _product;
 
   int get id => _product.id;
 
