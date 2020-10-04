@@ -10,6 +10,7 @@ import './providers/cart.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setEnabledSystemUIOverlays([]);
   runApp(ShopApp());
 }
 
@@ -27,9 +28,7 @@ class ShopApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: const Color(0xFFeebdff),
           accentColor: const Color(0xFFB12FEB),
-          appBarTheme: AppBarTheme(
-            color: const Color(0xFFeebdff),
-          ),
+          appBarTheme: AppBarTheme(color: const Color(0xFFeebdff)),
           scaffoldBackgroundColor: const Color(0xFFf5d9ff),
           fontFamily: 'Quicksand',
         ),
