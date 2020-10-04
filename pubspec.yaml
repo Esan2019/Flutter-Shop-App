@@ -23,6 +23,8 @@ flutter:
 
   assets:
     - assets/animations/no-favorites.json
+    - assets/animations/woman-with-bags.json
+    - assets/animations/bag.json
  
   fonts:
      - family: Quicksand
