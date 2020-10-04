@@ -7,6 +7,7 @@ import '../widgets/drawer.dart';
 import '../widgets/badge.dart';
 import '../providers/products.dart';
 import '../providers/cart.dart';
+import '../routes_handler.dart';
 
 class Home extends StatelessWidget {
   @override
@@ -30,7 +31,7 @@ class Home extends StatelessWidget {
                   Text('Sacolinha'),
                 ],
               ),
-              onPressed: () {},
+              onPressed: () => Navigator.pushNamed(context, cartItemsRoute),
             ),
           ),
         ],

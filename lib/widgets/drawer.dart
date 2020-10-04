@@ -10,7 +10,7 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     void navigate(String route) {
       Navigator.of(context).pop();
-      Navigator.pushNamed(context, favoritesRoute);
+      Navigator.pushNamed(context, route);
     }
 
     return SafeArea(
@@ -27,12 +27,12 @@ class MainDrawer extends StatelessWidget {
                   ShopBrand(),
                   ListTile(
                     leading: Icon(Icons.shopping_bag),
-                    title: Text('Cart'),
-                    onTap: () {},
+                    title: Text('Minha sacolinha'),
+                    onTap: () => navigate(cartItemsRoute),
                   ),
                   ListTile(
                     leading: Icon(Icons.favorite),
-                    title: Text('Favorites'),
+                    title: Text('Roupas favoritas'),
                     onTap: () => navigate(favoritesRoute),
                   ),
                 ],
