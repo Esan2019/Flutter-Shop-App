@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 import './routes/home.dart';
 import './routes/product_overview.dart';
 import './routes/favorites.dart';
+import './routes/cart_items.dart';
 import './models/product.dart';
 
 const homeRoute = '/';
 const productOverviewRoute = '/product-overview';
 const favoritesRoute = '/favorites';
+const cartItemsRoute = '/cart-itens';
 
 class RoutesHandler {
   static Route<dynamic> _navigate(Widget destinationPage) {
@@ -25,6 +27,9 @@ class RoutesHandler {
 
       case favoritesRoute:
         return _navigate(Favorites());
+
+      case cartItemsRoute:
+        return _navigate(CartItems());
     }
   }
 }
