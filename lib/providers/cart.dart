@@ -11,7 +11,13 @@ class CartItem {
 
   double get productPrice => _product.price;
 
+  String get productTitle => _product.title;
+
+  String get productImageUrl => _product.imageUrl;
+
   int get id => _product.id;
+
+  int get quantity => _quantity;
 
   void increaseQuantity() => _quantity++;
 
