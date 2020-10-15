@@ -21,6 +21,7 @@ class SizeConfig {
     screenHeight = mediaQuery.size.height;
     screenWidth = mediaQuery.size.width;
     orientation = mediaQuery.orientation;
+    textScaleFactor = mediaQuery.textScaleFactor;
   }
 
   static SizedBox getSpacing({double vertical = 0, double horizontal = 0}) {
