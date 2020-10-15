@@ -4,12 +4,14 @@ import './routes/home.dart';
 import './routes/product_overview.dart';
 import './routes/favorites.dart';
 import './routes/cart_items.dart';
+import './routes/orders_overview.dart';
 import './models/product.dart';
 
 const homeRoute = '/';
 const productOverviewRoute = '/product-overview';
 const favoritesRoute = '/favorites';
 const cartItemsRoute = '/cart-itens';
+const ordersOverview = '/orders-overview';
 
 class RoutesHandler {
   static Route<dynamic> _navigate(Widget destinationPage) {
@@ -25,11 +27,14 @@ class RoutesHandler {
         final selectedProduct = settings.arguments as Product;
         return _navigate(ProductOverview(selectedProduct));
 
-      case favoritesRoute:
+      case favoritesRoute:                                                                                                                                                                                                                                                                                                                                                          
         return _navigate(Favorites());
 
-      case cartItemsRoute:
+      case cartItemsRoute:                                                          
         return _navigate(CartItems());
+
+      case ordersOverview:
+        return _navigate(OrdersOverview());                         
     }
   }
 }

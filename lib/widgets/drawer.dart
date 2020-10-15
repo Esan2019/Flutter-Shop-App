@@ -24,16 +24,21 @@ class MainDrawer extends StatelessWidget {
               color: Theme.of(context).scaffoldBackgroundColor,
               child: Column(
                 children: [
-                  ShopBrand(),
+                  DrawerTitle(),
+                  ListTile(
+                    leading: Icon(Icons.favorite),
+                    title: Text('Roupas favoritas'),
+                    onTap: () => navigate(favoritesRoute),
+                  ),
                   ListTile(
                     leading: Icon(Icons.shopping_bag),
                     title: Text('Minha sacolinha'),
                     onTap: () => navigate(cartItemsRoute),
                   ),
                   ListTile(
-                    leading: Icon(Icons.favorite),
-                    title: Text('Roupas favoritas'),
-                    onTap: () => navigate(favoritesRoute),
+                    leading: Icon(Icons.attach_money),
+                    title: Text('Meus pedidos'),
+                    onTap: () => navigate(ordersOverview),
                   ),
                 ],
               ),
@@ -45,16 +50,12 @@ class MainDrawer extends StatelessWidget {
   }
 }
 
-class ShopBrand extends StatelessWidget {
+class DrawerTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return DrawerHeader(
-      padding: EdgeInsets.zero,
-      child: Image.network(
-        'https://i.imgur.com/vHluDFO.png',
-        fit: BoxFit.cover,
-        width: totalAvailableWidth,
-      ),
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: Text('Menu'),
     );
   }
 }
