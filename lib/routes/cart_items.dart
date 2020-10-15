@@ -3,21 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
+import '../size_config.dart';
 import '../models/cart_item.dart';
 import '../providers/cart.dart';
 import '../providers/orders.dart';
 
-double totalScreenHeight;
-double totalScreenWidth;
 Cart cart;
 
 class CartItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    totalScreenHeight = mediaQuery.size.height;
-    totalScreenWidth = mediaQuery.size.width;
-
+    SizeConfig.init(context);
     cart = Provider.of<Cart>(context);
 
     return Scaffold(
@@ -49,7 +45,7 @@ class ItemsList extends StatelessWidget {
       elevation: 15,
       color: const Color(0xFFc447fc),
       child: Container(
-        height: totalScreenHeight * 0.63,
+        height: SizeConfig.getHeightPercentage(63),
         child: ListView.builder(
           physics: const BouncingScrollPhysics(),
           itemCount: cart.itemsCount,
@@ -80,7 +76,7 @@ class ItemTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         softWrap: false,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: SizeConfig.textScaleFactor * 15,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
@@ -137,7 +133,7 @@ class Footer extends StatelessWidget {
       color: const Color(0xFFc447fc),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 5),
-        height: totalScreenHeight * 0.1,
+        height: SizeConfig.getHeightPercentage(10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -212,7 +208,7 @@ class Header extends StatelessWidget {
         Column(
           children: [
             Container(
-              height: totalScreenHeight * 0.23,
+              height: SizeConfig.getHeightPercentage(23),
               width: double.infinity,
               color: Theme.of(context).accentColor,
             ),
@@ -223,7 +219,7 @@ class Header extends StatelessWidget {
           left: 0,
           right: 0,
           child: Container(
-            height: totalScreenHeight * 0.25,
+            height: SizeConfig.getHeightPercentage(25),
             child: Lottie.asset('assets/animations/woman-with-bags.json'),
           ),
         ),

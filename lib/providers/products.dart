@@ -34,6 +34,8 @@ class Products with ChangeNotifier {
     ),
   ];
 
+  bool get hasAnyFavorite => favoriteProducts.length >= 1;
+
   List<Product> get products {
     return [..._products];
   }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:shop/providers/cart.dart';
-import 'package:shop/providers/products.dart';
 
+import '../size_config.dart';
 import '../models/product.dart';
+import '../providers/cart.dart';
+import '../providers/products.dart';
 
-double totalScreenHeight;
-double totalScreenWidth;
 const whitishColor = const Color(0xFFebebeb);
 
 class ProductOverview extends StatelessWidget {
@@ -16,9 +15,7 @@ class ProductOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    totalScreenHeight = mediaQuery.size.height;
-    totalScreenWidth = mediaQuery.size.width;
+    SizeConfig.init(context);
     final productsProvider = Provider.of<Products>(context);
 
     return Scaffold(
@@ -28,13 +25,13 @@ class ProductOverview extends StatelessWidget {
           children: [
             ////// PRODUCT IMAGE //////
             Container(
-              height: totalScreenHeight * 0.68,
-              width: totalScreenWidth,
+              height: SizeConfig.getHeightPercentage(68),
+              width: SizeConfig.screenWidth,
               child: Stack(
                 children: [
                   Container(
-                    height: totalScreenHeight * 0.64,
-                    width: totalScreenWidth,
+                    height: SizeConfig.getHeightPercentage(64),
+                    width: SizeConfig.screenWidth,
                     child: Image.network(product.imageUrl, fit: BoxFit.cover),
                   ),
                   FavoriteButton(
@@ -44,13 +41,13 @@ class ProductOverview extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: totalScreenHeight * 0.005),
+            SizedBox(height: SizeConfig.getHeightPercentage(0.5)),
 
             ////// PRODUCT TITLE //////
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
               // 0.755
-              height: totalScreenHeight * 0.07,
+              height: SizeConfig.getHeightPercentage(7),
               child: FittedBox(
                 child: Text(
                   product.title,
@@ -61,7 +58,7 @@ class ProductOverview extends StatelessWidget {
             Spacer(),
 
             AddToCartButton(product),
-            SizedBox(height: totalScreenHeight * 0.01)
+            SizedBox(height: SizeConfig.getHeightPercentage(1))
           ],
         ),
       ),
@@ -92,8 +89,8 @@ class _FavoriteButtonState extends State<FavoriteButton> {
             BoxShadow(color: const Color(0xFF404040), blurRadius: 6),
           ],
         ),
-        height: totalScreenHeight * 0.08,
-        width: totalScreenHeight * 0.08,
+        height: SizeConfig.getHeightPercentage(8),
+        width: SizeConfig.getHeightPercentage(8),
         child: IconButton(
           color: whitishColor,
           splashRadius: 0.01,
@@ -126,8 +123,8 @@ class AddToCartButton extends StatelessWidget {
         }
       },
       child: Container(
-        height: totalScreenHeight * 0.08,
-        width: totalScreenWidth * 0.9,
+        height: SizeConfig.getHeightPercentage(8),
+        width: SizeConfig.getWidthPercentage(90),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: isInCart
@@ -161,7 +158,7 @@ class AddToCartButton extends StatelessWidget {
             isInCart
                 ? Container()
                 : Text(
-                    '(R\$ ${product.price})',
+                    '(R\$${product.price.toStringAsFixed(2)})',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: whitishColor,

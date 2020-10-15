@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import '../size_config.dart';
 import '../models/order.dart';
 
 class ExpandableOrderCard extends StatelessWidget {
@@ -27,7 +28,7 @@ class ExpandableOrderCard extends StatelessWidget {
           onLongPress: null,
           title: Text(
             cartItem.product.title,
-            style: TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: 14 * SizeConfig.textScaleFactor),
           ),
           leading: Text('${cartItem.quantity}x'),
           trailing: Text('R\$${cartItem.product.price.toStringAsFixed(2)}'),

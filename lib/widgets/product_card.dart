@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
+import '../size_config.dart';
 import '../routes_handler.dart';
 import '../models/product.dart';
 import '../providers/cart.dart';
@@ -33,7 +34,6 @@ const productPriceStyle = TextStyle(
   ],
 );
 
-double totalScreenHeight;
 Products productsProvider;
 Cart cartProvider;
 
@@ -43,7 +43,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    totalScreenHeight = MediaQuery.of(context).size.height;
     productsProvider = Provider.of<Products>(context, listen: false);
     cartProvider = Provider.of<Cart>(context, listen: false);
 
@@ -66,7 +65,7 @@ class CardContainer extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            height: totalScreenHeight * 0.5,
+            height: SizeConfig.getHeightPercentage(50),
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(product.imageUrl),
@@ -104,7 +103,7 @@ class CardBottomBar extends StatelessWidget {
           children: [
             ////// TITLE LABEL //////
             Container(
-              height: totalScreenHeight * 0.035,
+              height: SizeConfig.getHeightPercentage(3.5),
               alignment: Alignment.centerLeft,
               child: FittedBox(
                 child: Text(product.title, style: productTitleStyle),
@@ -113,7 +112,7 @@ class CardBottomBar extends StatelessWidget {
 
             ////// PRICE AND ICONS LABEL //////
             Container(
-              height: totalScreenHeight * 0.035,
+              height: SizeConfig.getHeightPercentage(3.5),
               alignment: Alignment.centerLeft,
               child: FittedBox(
                 child: Consumer2<Products, Cart>(
