@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../models/cart_item.dart';
 import '../providers/cart.dart';
+import '../providers/orders.dart';
 
 double totalScreenHeight;
 double totalScreenWidth;
@@ -120,6 +121,7 @@ class ItemTile extends StatelessWidget {
 class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final orders = Provider.of<Orders>(context, listen: false);
     const textStyle = TextStyle(
       fontWeight: FontWeight.w500,
       color: Colors.white,
@@ -169,7 +171,10 @@ class Footer extends StatelessWidget {
                   color: Colors.yellow,
                 ),
               ),
-              onPressed: cart.clearCart,
+              onPressed: () {
+                orders.createOrder(cart.items);
+                cart.clearCart();
+              },
             ),
           ],
         ),
