@@ -147,11 +147,25 @@ class CardWithGestures extends StatelessWidget {
       key: ValueKey(product.id),
       direction: DismissDirection.startToEnd,
       confirmDismiss: (_) async {
-        if (cartProvider.contains(product)) {
-          cartProvider.removeItem(product.id);
-          return false;
+        final removeItem = cartProvider.removeItem;
+        final addItem = cartProvider.addItemOrIncreaseQuantity;
+        final isAlreadyInCart = cartProvider.contains(product);
+
+        if (isAlreadyInCart) {
+          removeItem(product.id);
+          _showSnackbar(
+            context,
+            label: 'Removido da sacolinha!',
+            onPressed: () => addItem(product),
+          );
+        } else {
+          addItem(product);
+          _showSnackbar(
+            context,
+            label: 'Adicionado na sacolinha!',
+            onPressed: () => removeItem(product.id),
+          );
         }
-        cartProvider.addItemOrIncreaseQuantity(product);
         return false;
       },
       background: Consumer<Cart>(
@@ -219,4 +233,21 @@ List<Widget> getIcons({bool isFavorite, bool isInCart}) {
 void _navigateToOverviewScreen(BuildContext context, Product selectedProduct) {
   Navigator.of(context)
       .pushNamed(productOverviewRoute, arguments: selectedProduct);
+}
+
+void _showSnackbar(BuildContext context,
+    {@required String label, @required VoidCallback onPressed}) {
+  final scaffold = Scaffold.of(context);
+  scaffold.hideCurrentSnackBar();
+  scaffold.showSnackBar(
+    SnackBar(
+      content: Text(label),
+      duration: Duration(seconds: 2),
+      action: SnackBarAction(
+        label: 'DESFAZER',
+        onPressed: onPressed,
+        textColor: Theme.of(context).primaryColor,
+      ),
+    ),
+  );
 }
