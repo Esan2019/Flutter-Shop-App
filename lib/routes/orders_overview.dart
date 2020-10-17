@@ -15,6 +15,7 @@ class OrdersOverview extends StatelessWidget {
     return Scaffold(
       body: ListView.builder(
         itemCount: orders.length,
+        physics: BouncingScrollPhysics(),
         itemBuilder: (_, index) => ExpandableOrderCard(orders.elementAt(index)),
       ),
     );
