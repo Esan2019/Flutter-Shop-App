@@ -35,7 +35,7 @@ class ProductOverview extends StatelessWidget {
                     child: Image.network(product.imageUrl, fit: BoxFit.cover),
                   ),
                   FavoriteButton(
-                    productsProvider.toggleFavoriteStatus(product),
+                    () => productsProvider.toggleFavoriteStatus(product),
                     product.isFavorite,
                   ),
                 ],
