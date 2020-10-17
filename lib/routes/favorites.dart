@@ -6,7 +6,7 @@ import 'package:lottie/lottie.dart';
 import '../size_config.dart';
 import '../providers/products.dart';
 import '../models/product.dart';
-import '../widgets/product_card.dart';
+import '../widgets/product_card/product_card.dart';
 
 class Favorites extends StatelessWidget {
   @override

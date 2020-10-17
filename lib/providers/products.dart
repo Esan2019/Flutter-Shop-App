@@ -44,10 +44,8 @@ class Products with ChangeNotifier {
     return _products.where((product) => product.isFavorite).toList();
   }
 
-  Function toggleFavoriteStatus(Product product) {
-    return () {
-      _products.elementAt(_products.indexOf(product))..toggleFavoriteStatus();
-      notifyListeners();
-    };
+  void toggleFavoriteStatus(Product product) {
+    _products.elementAt(_products.indexOf(product))..toggleFavoriteStatus();
+    notifyListeners();
   }
 }
