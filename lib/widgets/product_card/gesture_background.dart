@@ -7,7 +7,7 @@ class GestureBackground extends StatelessWidget {
   final Color backgroundColor;
   final Alignment alignment;
 
-  GestureBackground({
+  const GestureBackground({
     @required this.icon,
     @required this.label,
     @required this.color,
