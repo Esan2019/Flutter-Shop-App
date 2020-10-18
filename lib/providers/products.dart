@@ -48,4 +48,9 @@ class Products with ChangeNotifier {
     _products.elementAt(_products.indexOf(product))..toggleFavoriteStatus();
     notifyListeners();
   }
+
+  void deleteProduct(Product product) {
+    _products.remove(product);
+    notifyListeners();
+  }
 }
