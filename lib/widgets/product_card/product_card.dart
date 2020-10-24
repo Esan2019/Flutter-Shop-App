@@ -60,7 +60,7 @@ class ProductCard extends StatelessWidget {
                         children: [
                           ...?icons,
                           Text(
-                            'R\$ ${product.price}',
+                            'R\$ ${product.price.toStringAsFixed(2).replaceAll(".", ",")}',
                             style: productCardPriceStyle,
                           ),
                         ],
