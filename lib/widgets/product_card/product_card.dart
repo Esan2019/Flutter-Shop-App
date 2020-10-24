@@ -2,21 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../size_config.dart';
 import '../../models/product.dart';
-
-const productTitleStyle = TextStyle(
-  color: const Color(0xFFFFFFFF),
-  fontWeight: FontWeight.w500,
-  shadows: [
-    Shadow(
-      color: const Color(0xFF000000),
-      blurRadius: 8,
-    ),
-    Shadow(
-      color: const Color(0xFF000000),
-      blurRadius: 8,
-    ),
-  ],
-);
+import '../../constants.dart';
 
 const productPriceStyle = TextStyle(
   color: const Color(0xFFFFFFFF),
@@ -71,7 +57,10 @@ class ProductCard extends StatelessWidget {
                     height: SizeConfig.getHeightPercentage(3.5),
                     alignment: Alignment.centerLeft,
                     child: FittedBox(
-                      child: Text(product.title, style: productTitleStyle),
+                      child: Text(
+                        product.title,
+                        style: productCardTitleStyle,
+                      ),
                     ),
                   ),
                   Container(
