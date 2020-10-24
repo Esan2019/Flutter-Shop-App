@@ -48,7 +48,7 @@ class ItemsList extends StatelessWidget {
         height: SizeConfig.getHeightPercentage(63),
         child: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          itemCount: cart.itemsCount,
+          itemCount: cart.distinctItemsCount,
           itemBuilder: (_, index) => Padding(
             padding: const EdgeInsets.all(3.0),
             child: ItemTile(cart.items.elementAt(index)),
@@ -85,7 +85,7 @@ class ItemTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Valor: ${item.product.price.toStringAsFixed(2)}',
+            'Valor: R\$${item.product.price.toStringAsFixed(2).replaceAll(".", ",")}',
             style: TextStyle(color: Colors.white),
           ),
           Text(
@@ -99,7 +99,7 @@ class ItemTile extends StatelessWidget {
           Flexible(
             child: IconButton(
               icon: Icon(Icons.add),
-              onPressed: () => cart.addItemOrIncreaseQuantity(item.product),
+              onPressed: () => cart.increaseQuantity(item),
             ),
           ),
           Flexible(
@@ -145,7 +145,7 @@ class Footer extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      'Total de itens: ${cart.singleItemsCount}',
+                      'Total de itens: ${cart.totalItemsCount}',
                       style: textStyle,
                     ),
                   ),

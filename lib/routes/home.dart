@@ -26,7 +26,7 @@ class Home extends StatelessWidget {
           Consumer<Cart>(
             builder: (_, cart, child) => Badge(
               child: child,
-              value: cart.itemsCount,
+              value: cart.totalItemsCount,
             ),
             child: FlatButton(
               child: Row(
@@ -52,7 +52,7 @@ class Home extends StatelessWidget {
               final isInCart = cart.contains(product);
               final isFavorite = product.isFavorite;
               final removeItem = cart.removeItem;
-              final addItem = cart.addItemOrIncreaseQuantity;
+              final addItem = cart.addItem;
 
               return ProductCardGestures(
                 key: ValueKey<int>(product.id),
@@ -67,20 +67,18 @@ class Home extends StatelessWidget {
                   productOverviewRoute,
                   arguments: product,
                 ),
+                onDoubleTap: () => products.toggleFavoriteStatus(product),
                 onRightSwipe: () {
                   if (isInCart) {
-                    removeItem(product.id);
+                    removeItem(product);
                     _showSnackbar(
-                      ctx,
-                      label: 'Removido da sacolinha!',
-                      onPressed: () => addItem(product),
-                    );
+                        ctx, 'Removido da sacolinha!', () => addItem(product));
                   } else {
                     addItem(product);
                     _showSnackbar(
                       ctx,
-                      label: 'Salvo na sacolinha!',
-                      onPressed: () => removeItem(product.id),
+                      'Salvo na sacolinha!',
+                      () => removeItem(product),
                     );
                   }
                 },
@@ -90,14 +88,15 @@ class Home extends StatelessWidget {
                         label: 'Remover da sacolinha',
                         color: const Color(0xFFF5C6BC),
                         backgroundColor: const Color(0xFFF2804E),
-                        alignment: Alignment.centerLeft)
+                        alignment: Alignment.centerLeft,
+                      )
                     : GestureBackground(
                         icon: Icons.shopping_bag,
                         label: 'Salvar na sacolinha',
                         color: const Color(0xFFF5BCE4),
                         backgroundColor: Theme.of(context).accentColor,
-                        alignment: Alignment.centerLeft),
-                onDoubleTap: () => products.toggleFavoriteStatus(product),
+                        alignment: Alignment.centerLeft,
+                      ),
               );
             },
           );
@@ -107,8 +106,7 @@ class Home extends StatelessWidget {
   }
 }
 
-void _showSnackbar(BuildContext context,
-    {@required String label, @required VoidCallback onPressed}) {
+void _showSnackbar(BuildContext context, String label, VoidCallback onPressed) {
   final scaffold = Scaffold.of(context);
   scaffold.hideCurrentSnackBar();
   scaffold.showSnackBar(

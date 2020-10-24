@@ -117,9 +117,9 @@ class AddToCartButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (isInCart) {
-          cartProvider.removeItem(product.id);
+          cartProvider.removeItem(product);
         } else {
-          cartProvider.addItemOrIncreaseQuantity(product);
+          cartProvider.addItem(product);
         }
       },
       child: Container(
@@ -163,7 +163,7 @@ class AddToCartButton extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: whitishColor,
                     ),
-                  )
+                  ),
           ],
         ),
       ),
