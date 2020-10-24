@@ -117,9 +117,9 @@ class AddToCartButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (isInCart) {
-          cartProvider.removeItem(product);
+          cartProvider.removeProduct(product);
         } else {
-          cartProvider.addItem(product);
+          cartProvider.addProduct(product);
         }
       },
       child: Container(

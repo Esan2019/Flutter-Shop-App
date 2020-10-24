@@ -169,7 +169,7 @@ class Footer extends StatelessWidget {
               ),
               onPressed: () {
                 orders.createOrder(cart.items);
-                cart.clearCart();
+                cart.clear();
               },
             ),
           ],

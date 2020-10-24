@@ -20,18 +20,18 @@ class Cart with ChangeNotifier {
   int get totalItemsCount =>
       _items.fold(0, (count, cartItem) => count += cartItem.quantity);
 
+  bool get isEmpty => _items.isEmpty;
+
   bool contains(Product product) {
     return _getCartItemIndex(product).isNegative ? false : true;
   }
 
-  bool get isEmpty => _items.isEmpty;
-
-  void addItem(Product product) {
+  void addProduct(Product product) {
     if (!contains(product)) _items.add(CartItem(product));
     notifyListeners();
   }
 
-  void removeItem(Product product) {
+  void removeProduct(Product product) {
     _items.removeWhere((cartItem) => cartItem.id == product.id);
     notifyListeners();
   }
@@ -46,8 +46,8 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearCart() {
-    _items = [];
+  void clear() {
+    _items.clear();
     notifyListeners();
   }
 

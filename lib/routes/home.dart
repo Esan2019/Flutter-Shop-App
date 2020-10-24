@@ -51,8 +51,8 @@ class Home extends StatelessWidget {
             builder: (ctx, products, cart, child) {
               final isInCart = cart.contains(product);
               final isFavorite = product.isFavorite;
-              final removeItem = cart.removeItem;
-              final addItem = cart.addItem;
+              final removeItem = cart.removeProduct;
+              final addItem = cart.addProduct;
 
               return ProductCardGestures(
                 key: ValueKey<int>(product.id),
