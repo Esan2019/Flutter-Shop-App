@@ -49,6 +49,11 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
+  void createProduct(Product product) {
+    _products.add(product);
+    notifyListeners();
+  }
+
   void deleteProduct(Product product) {
     _products.remove(product);
     notifyListeners();
