@@ -14,3 +14,14 @@ const productCardTitleStyle = TextStyle(
     ),
   ],
 );
+
+const productCardPriceStyle = TextStyle(
+  color: const Color(0xFFFFFFFF),
+  fontWeight: FontWeight.bold,
+  shadows: [
+    Shadow(
+      color: const Color(0xFF000000),
+      blurRadius: 8,
+    ),
+  ],
+);

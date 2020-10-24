@@ -4,17 +4,6 @@ import '../../size_config.dart';
 import '../../models/product.dart';
 import '../../constants.dart';
 
-const productPriceStyle = TextStyle(
-  color: const Color(0xFFFFFFFF),
-  fontWeight: FontWeight.bold,
-  shadows: [
-    Shadow(
-      color: const Color(0xFF000000),
-      blurRadius: 8,
-    ),
-  ],
-);
-
 class ProductCard extends StatelessWidget {
   final Product product;
   final List<Widget> icons;
@@ -72,7 +61,7 @@ class ProductCard extends StatelessWidget {
                           ...?icons,
                           Text(
                             'R\$ ${product.price}',
-                            style: productPriceStyle,
+                            style: productCardPriceStyle,
                           ),
                         ],
                       ),
