@@ -21,9 +21,7 @@ class ShopApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => Products()),
         ChangeNotifierProvider(create: (_) => Cart()),
-        ChangeNotifierProvider(
-          create: (_) => Orders(),
-        )
+        ChangeNotifierProvider(create: (_) => Orders()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -34,6 +32,7 @@ class ShopApp extends StatelessWidget {
           appBarTheme: AppBarTheme(color: const Color(0xFFeebdff)),
           scaffoldBackgroundColor: const Color(0xFFf5d9ff),
           fontFamily: 'Quicksand',
+          cardTheme: CardTheme(color: const Color(0xFFeebdff), elevation: 7),
         ),
         onGenerateRoute: RoutesHandler.handleRoute,
         initialRoute: homeRoute,
