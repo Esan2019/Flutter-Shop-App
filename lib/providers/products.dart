@@ -45,7 +45,14 @@ class Products with ChangeNotifier {
   }
 
   void toggleFavoriteStatus(Product product) {
-    _products.elementAt(_products.indexOf(product))..toggleFavoriteStatus();
+    _getProductByIndex(_getProductIndex(product))..toggleFavoriteStatus();
+    notifyListeners();
+  }
+
+  void editProduct(Product product) {
+    final productIndex = _getProductIndexById(product.id);
+    deleteProduct(_getProductByIndex(productIndex));
+    _products.insert(productIndex, product);
     notifyListeners();
   }
 
@@ -57,5 +64,29 @@ class Products with ChangeNotifier {
   void deleteProduct(Product product) {
     _products.remove(product);
     notifyListeners();
+  }
+
+  bool contains(Product product) {
+    if (product.id == null) return false;
+    final prod = _getProductById(product.id);
+    if (prod == null) return false;
+    return true;
+  }
+
+  Product _getProductById(int id) {
+    return _products.firstWhere((product) => product.id == id);
+  }
+
+  Product _getProductByIndex(int index) {
+    return _products.elementAt(index);
+  }
+
+  int _getProductIndexById(int id) {
+    final product = _getProductById(id);
+    return _products.indexOf(product);
+  }
+
+  int _getProductIndex(Product product) {
+    return _products.indexOf(product);
   }
 }
