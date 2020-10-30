@@ -1,31 +1,42 @@
-import 'package:flutter/foundation.dart';
-
 class Product {
-  @required
   final int _id;
-  @required
   final String _title;
-  @required
   final String _description;
-  @required
   final double _price;
-  @required
   final String _imageUrl;
   bool _isFavorite;
 
   Product({
-    @required int id,
-    @required String title,
-    @required String description,
+    int id,
+    String title,
+    String description,
     double price,
-    @required String imageUrl,
+    String imageUrl,
     bool isFavorite,
-  })  : _id = id,
-        _title = title,
-        _description = description,
+  })  : _id = id ?? null,
+        _title = title ?? 'NO TITLE',
+        _description = description ?? 'NO DESCRIPTION',
         _price = price ?? 0.0,
-        _imageUrl = imageUrl,
+        _imageUrl = imageUrl ?? 'NO IMAGE URL',
         _isFavorite = isFavorite ?? false;
+
+  Product copyWith({
+    int id,
+    String title,
+    String description,
+    double price,
+    String imageUrl,
+    bool isFavorite,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      price: price ?? this.price,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 
   int get id => _id;
 
