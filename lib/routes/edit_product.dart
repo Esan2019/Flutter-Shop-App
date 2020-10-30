@@ -30,7 +30,8 @@ class _EditProductState extends State<EditProduct> {
 
   @override
   void initState() {
-    _priceController.text = widget._product.price.toString();
+    _priceController.text = widget._product.price.toStringAsFixed(2);
+    _imageUrlController.text = widget._product.imageUrl ?? '';
 
     _imageUrlFocusNode.addListener(() {
       if (!_imageUrlFocusNode.hasFocus) setState(() {});
@@ -189,7 +190,7 @@ class _EditProductState extends State<EditProduct> {
                         padding: const EdgeInsets.only(left: 8.0),
                         child: TextFormField(
                           validator: _validateImageUrl,
-                          initialValue: widget._product.imageUrl,
+                          controller: _imageUrlController,
                           onSaved: (imageUrl) => _setProductImageUrl(imageUrl),
                           onFieldSubmitted: (_) =>
                               FocusScope.of(context).nextFocus(),
