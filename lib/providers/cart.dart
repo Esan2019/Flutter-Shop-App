@@ -23,7 +23,7 @@ class Cart with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
 
   bool contains(Product product) {
-    return _getCartItemIndex(product).isNegative ? false : true;
+    return _items.any((cartItem) => cartItem.id == product.id);
   }
 
   void addProduct(Product product) {
@@ -49,9 +49,5 @@ class Cart with ChangeNotifier {
   void clear() {
     _items.clear();
     notifyListeners();
-  }
-
-  int _getCartItemIndex(Product product) {
-    return _items.indexWhere((cartItem) => cartItem.id == product.id);
   }
 }
