@@ -13,11 +13,11 @@ class Product {
     double price,
     String imageUrl,
     bool isFavorite,
-  })  : _id = id ?? null,
-        _title = title ?? 'NO TITLE',
-        _description = description ?? 'NO DESCRIPTION',
+  })  : _id = id,
+        _title = title,
+        _description = description,
         _price = price ?? 0.0,
-        _imageUrl = imageUrl ?? 'NO IMAGE URL',
+        _imageUrl = imageUrl,
         _isFavorite = isFavorite ?? false;
 
   Product copyWith({
