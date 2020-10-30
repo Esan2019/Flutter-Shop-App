@@ -49,7 +49,7 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void createProduct(Product product) {
+  void addProduct(Product product) {
     _products.add(product);
     notifyListeners();
   }
