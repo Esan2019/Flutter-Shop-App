@@ -7,6 +7,7 @@ import '../widgets/drawer.dart';
 import '../widgets/product_card/product_card.dart';
 import '../widgets/product_card/product_card_gestures.dart';
 import '../widgets/product_card/gesture_background.dart';
+import '../routes_handler.dart';
 
 class UserProducts extends StatelessWidget {
   @override
@@ -20,8 +21,7 @@ class UserProducts extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            // TODO: implement onPressed function
-            onPressed: () {},
+            onPressed: () => Navigator.of(context).pushNamed(editProduct),
           )
         ],
       ),
@@ -57,10 +57,16 @@ class UserProducts extends StatelessWidget {
                         const Text(
                           'Você está a um passo de deletar o seguinte produto:',
                         ),
-                        const SizedBox(height: 8,),
-                        Text('${product.title}.', style: TextStyle(fontWeight: FontWeight.w500,)),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Text('${product.title}.',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                            )),
                         const SizedBox(height: 8),
-                        const Text('Tem certeza que deseja prosseguir? Esta ação é irreversível!'),
+                        const Text(
+                            'Tem certeza que deseja prosseguir? Esta ação é irreversível!'),
                       ],
                     ),
                     actions: [
@@ -69,7 +75,9 @@ class UserProducts extends StatelessWidget {
                         onPressed: () => Navigator.of(ctx).pop(),
                       ),
                       FlatButton(
-                        child: Text('SIM, QUERO DELETAR', style: TextStyle(color: Theme.of(context).errorColor)),
+                        child: Text('SIM, QUERO DELETAR',
+                            style:
+                                TextStyle(color: Theme.of(context).errorColor)),
                         onPressed: () {
                           productsProvider.deleteProduct(product);
                           Navigator.of(ctx).pop();
