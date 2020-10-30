@@ -44,7 +44,12 @@ class RoutesHandler {
         return _navigate(UserProducts());
 
       case editProduct:
-        return _navigate(EditProduct());
+        final product = settings.arguments as Product;
+        if (product != null) {
+          return _navigate(EditProduct(product: product));
+        } else {
+          return _navigate(EditProduct());
+        }
     }
   }
 }

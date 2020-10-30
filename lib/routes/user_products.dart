@@ -36,8 +36,9 @@ class UserProducts extends StatelessWidget {
             key: ValueKey<int>(product.id),
             child: ProductCard(product),
             onTap: () {},
-            // TODO: implement onRightSwipe function
-            onRightSwipe: () {},
+            onRightSwipe: () {
+              Navigator.of(context).pushNamed(editProduct, arguments: product);
+            },
             rightSwipeBackground: const GestureBackground(
               icon: Icons.edit,
               label: 'Editar item',

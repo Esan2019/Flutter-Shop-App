@@ -10,21 +10,16 @@ import '../constants.dart';
 import '../models/product.dart';
 import '../providers/products.dart';
 
-class EditProduct extends StatelessWidget {
-  final appBar = AppBar(title: const Text('Editar produto'));
+class EditProduct extends StatefulWidget {
+  var _product;
+
+  EditProduct({Product product}) : _product = product ?? Product();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: appBar, body: EditProductForm());
-  }
+  _EditProductState createState() => _EditProductState();
 }
 
-class EditProductForm extends StatefulWidget {
-  @override
-  _EditProductFormState createState() => _EditProductFormState();
-}
-
-class _EditProductFormState extends State<EditProductForm> {
+class _EditProductState extends State<EditProduct> {
   final _titleFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
   final _priceController = MoneyMaskedTextController();
@@ -32,10 +27,11 @@ class _EditProductFormState extends State<EditProductForm> {
   final _imageUrlController = TextEditingController();
   final _descriptionFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
-  var _product = Product();
 
   @override
   void initState() {
+    _priceController.text = widget._product.price.toString();
+
     _imageUrlFocusNode.addListener(() {
       if (!_imageUrlFocusNode.hasFocus) setState(() {});
     });
@@ -54,31 +50,45 @@ class _EditProductFormState extends State<EditProductForm> {
   }
 
   void _submitForm() {
-    final isValid = _formKey.currentState.validate();
-    if (!isValid) return;
-    _formKey.currentState.save();
-    Provider.of<Products>(context, listen: false).addProduct(
-      _product.copyWith(
-        id: Random().nextDouble().ceil(),
-      ),
-    );
+    if (_isFormValid()) {
+      _formKey.currentState.save();
+
+      final product = widget._product;
+      final productsProvider = Provider.of<Products>(context, listen: false);
+
+      if (productsProvider.contains(product)) {
+        productsProvider.editProduct(product);
+      } else {
+        productsProvider.addProduct(
+          product.copyWith(
+            id: Random().nextDouble().ceil(),
+          ),
+        );
+      }
+    }
+
     Navigator.of(context).pop();
   }
 
+  bool _isFormValid() {
+    return _formKey.currentState.validate();
+  }
+
   void _setProductTitle(String title) {
-    _product = _product.copyWith(title: title);
+    widget._product = widget._product.copyWith(title: title);
   }
 
   void _setProductPrice(String price) {
-    _product = _product.copyWith(price: _convertPriceToDouble(price));
+    widget._product =
+        widget._product.copyWith(price: _convertPriceToDouble(price));
   }
 
   void _setProductDescription(String description) {
-    _product = _product.copyWith(description: description);
+    widget._product = widget._product.copyWith(description: description);
   }
 
   void _setProductImageUrl(String imageUrl) {
-    _product = _product.copyWith(imageUrl: imageUrl);
+    widget._product = widget._product.copyWith(imageUrl: imageUrl);
   }
 
   String _validateTitle(String title) {
@@ -110,6 +120,7 @@ class _EditProductFormState extends State<EditProductForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Editar produto')),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Form(
@@ -139,6 +150,7 @@ class _EditProductFormState extends State<EditProductForm> {
                         textInputAction: TextInputAction.next,
                         focusNode: _titleFocusNode,
                         validator: _validateTitle,
+                        initialValue: widget._product.title,
                         onSaved: (title) => _setProductTitle(title),
                         onFieldSubmitted: (_) =>
                             FocusScope.of(context).nextFocus(),
@@ -176,8 +188,8 @@ class _EditProductFormState extends State<EditProductForm> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: TextFormField(
-                          controller: _imageUrlController,
                           validator: _validateImageUrl,
+                          initialValue: widget._product.imageUrl,
                           onSaved: (imageUrl) => _setProductImageUrl(imageUrl),
                           onFieldSubmitted: (_) =>
                               FocusScope.of(context).nextFocus(),
@@ -197,6 +209,7 @@ class _EditProductFormState extends State<EditProductForm> {
                         child: TextFormField(
                           focusNode: _descriptionFocusNode,
                           validator: _validateDescription,
+                          initialValue: widget._product.description,
                           onSaved: (desc) => _setProductDescription(desc),
                           maxLines: 6,
                           scrollPhysics: const BouncingScrollPhysics(),
