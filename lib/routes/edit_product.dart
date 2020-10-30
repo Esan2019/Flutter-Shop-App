@@ -61,7 +61,7 @@ class _EditProductState extends State<EditProduct> {
       } else {
         productsProvider.addProduct(
           product.copyWith(
-            id: Random().nextDouble().ceil(),
+            id: Random().nextInt(2000),
           ),
         );
       }
