@@ -66,9 +66,8 @@ class _EditProductState extends State<EditProduct> {
           ),
         );
       }
+      Navigator.of(context).pop();
     }
-
-    Navigator.of(context).pop();
   }
 
   bool _isFormValid() {
