@@ -25,3 +25,5 @@ const productCardPriceStyle = TextStyle(
     ),
   ],
 );
+
+const firebaseDatabaseUrl = 'https://flutter-shop-app-c01aa.firebaseio.com/';
