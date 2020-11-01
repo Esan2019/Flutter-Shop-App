@@ -33,7 +33,7 @@ class UserProducts extends StatelessWidget {
           final product = products.elementAt(index);
 
           return ProductCardGestures(
-            key: ValueKey<int>(product.id),
+            key: ValueKey<String>(product.id),
             child: ProductCard(product),
             onTap: () {},
             onRightSwipe: () {

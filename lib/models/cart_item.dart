@@ -9,7 +9,7 @@ class CartItem {
 
   Product get product => _product;
 
-  int get id => _product.id;
+  String get id => _product.id;
 
   int get quantity => _quantity;
 

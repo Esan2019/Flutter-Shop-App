@@ -14,7 +14,7 @@ class Orders with ChangeNotifier {
     _orders.insert(
       0,
       Order(
-        id: Random().nextDouble().toInt(),
+        id: Random().nextInt(2000).toString(),
         moment: DateTime.now(),
         items: cartItems,
       ),

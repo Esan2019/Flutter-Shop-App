@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'product_card.dart';
 
 class ProductCardGestures extends StatelessWidget {
-  final ValueKey<int> key;
+  final ValueKey<String> key;
 
   final Function onTap;
   final Function onDoubleTap;

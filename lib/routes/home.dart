@@ -55,7 +55,7 @@ class Home extends StatelessWidget {
               final addItem = cart.addProduct;
 
               return ProductCardGestures(
-                key: ValueKey<int>(product.id),
+                key: ValueKey<String>(product.id),
                 child: ProductCard(
                   product,
                   icons: _getIcons(

@@ -1,5 +1,5 @@
 class Product {
-  final int _id;
+  final String _id;
   final String _title;
   final String _description;
   final double _price;
@@ -7,7 +7,7 @@ class Product {
   bool _isFavorite;
 
   Product({
-    int id,
+    String id,
     String title,
     String description,
     double price,
@@ -21,7 +21,7 @@ class Product {
         _isFavorite = isFavorite ?? false;
 
   Product copyWith({
-    int id,
+    String id,
     String title,
     String description,
     double price,
@@ -38,7 +38,7 @@ class Product {
     );
   }
 
-  int get id => _id;
+  String get id => _id;
 
   String get title => _title;
 

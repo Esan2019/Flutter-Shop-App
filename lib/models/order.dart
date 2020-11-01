@@ -3,19 +3,19 @@ import 'package:flutter/foundation.dart';
 import '../models/cart_item.dart';
 
 class Order {
-  final int _id;
+  final String _id;
   final DateTime _moment;
   final List<CartItem> _items;
 
   const Order({
-    @required int id,
+    @required String id,
     @required DateTime moment,
     @required List<CartItem> items,
   })  : _id = id,
         _moment = moment,
         _items = items;
 
-  int get id => _id;
+  String get id => _id;
 
   int get totalItemsQuantity => _items.fold(
         0,

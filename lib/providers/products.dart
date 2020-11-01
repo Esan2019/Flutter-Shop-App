@@ -5,28 +5,28 @@ import '../models/product.dart';
 class Products with ChangeNotifier {
   List<Product> _products = [
     Product(
-      id: 1,
+      id: '1',
       title: 'Terno de alfaiataria verde musgo',
       description: 'Sem descrição',
       price: 29.99,
       imageUrl: 'https://i.imgur.com/94qtexK.jpg',
     ),
     Product(
-      id: 2,
+      id: '2',
       title: 'Vestido branco longo com fenda e decote profundo',
       description: 'Sem descrição',
       price: 59.99,
       imageUrl: 'https://i.imgur.com/4gzMFfk.jpg',
     ),
     Product(
-      id: 3,
+      id: '3',
       title: 'Camisa com amarração lateral e detalhes em escrita',
       description: 'Sem descrição',
       price: 19.99,
       imageUrl: 'https://i.imgur.com/dbJldKH.jpg',
     ),
     Product(
-      id: 4,
+      id: '4',
       title: 'Blusa de mangas bufantes e botões',
       description: 'Sem descrição',
       price: 49.99,
@@ -73,7 +73,7 @@ class Products with ChangeNotifier {
     return true;
   }
 
-  Product _getProductById(int id) {
+  Product _getProductById(String id) {
     return _products.firstWhere((product) => product.id == id);
   }
 
@@ -81,7 +81,7 @@ class Products with ChangeNotifier {
     return _products.elementAt(index);
   }
 
-  int _getProductIndexById(int id) {
+  int _getProductIndexById(String id) {
     final product = _getProductById(id);
     return _products.indexOf(product);
   }
