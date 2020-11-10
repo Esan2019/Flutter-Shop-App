@@ -7,37 +7,10 @@ import 'package:http/http.dart' as http;
 import '../constants.dart';
 import '../models/product.dart';
 
+const _productsUrl = firebaseDatabaseUrl + 'products.json';
+
 class Products with ChangeNotifier {
-  List<Product> _products = [
-    Product(
-      id: '1',
-      title: 'Terno de alfaiataria verde musgo',
-      description: 'Sem descrição',
-      price: 29.99,
-      imageUrl: 'https://i.imgur.com/94qtexK.jpg',
-    ),
-    Product(
-      id: '2',
-      title: 'Vestido branco longo com fenda e decote profundo',
-      description: 'Sem descrição',
-      price: 59.99,
-      imageUrl: 'https://i.imgur.com/4gzMFfk.jpg',
-    ),
-    Product(
-      id: '3',
-      title: 'Camisa com amarração lateral e detalhes em escrita',
-      description: 'Sem descrição',
-      price: 19.99,
-      imageUrl: 'https://i.imgur.com/dbJldKH.jpg',
-    ),
-    Product(
-      id: '4',
-      title: 'Blusa de mangas bufantes e botões',
-      description: 'Sem descrição',
-      price: 49.99,
-      imageUrl: 'https://i.imgur.com/F0YgiZ1.jpg',
-    ),
-  ];
+  List<Product> _products;
 
   bool get hasAnyFavorite => favoriteProducts.length >= 1;
 
@@ -63,25 +36,48 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchProductsFromDatabase() async {
+    http.Response response;
+
+    try {
+      print(1);
+      response = await http.get(_productsUrl);
+    } on http.ClientException {
+      throw ('Não foi possível carregar os produtos. Verifique se você possui conexão com a internet.');
+    }
+
+    final products = json.decode(response.body) as Map<String, dynamic>;
+
+    final List<Product> fetchedProducts = [];
+
+    products.forEach((productId, productMap) {
+      productMap['id'] = productId;
+      fetchedProducts.add(Product.fromMap(productMap));
+    });
+
+    _products = fetchedProducts;
+    notifyListeners();
+  }
+
   Future<void> addProduct(Product product) async {
-    const url = firebaseDatabaseUrl + 'products.json';
+    http.Response response;
+
     final productMap = product.toMap();
 
     try {
-      final response = await http.post(url, body: json.encode(productMap));
-
-      if (response.statusCode != 200)
-        throw 'Não foi possível adicionar o produto.';
-
-      final productId = json.decode(response.body)['name'];
-      productMap['id'] = productId;
-
-      _products.add(Product.fromMap(productMap));
-      notifyListeners();
-      return Future.value();
+      response = await http.post(_productsUrl, body: json.encode(productMap));
     } on http.ClientException {
       throw 'Não foi possível estabelecer uma conexão com o servidor. Verifique se você possui conexão com a internet.';
     }
+
+    if (response.statusCode != 200)
+      throw 'Não foi possível adicionar o produto.';
+
+    final productId = json.decode(response.body)['name'];
+    productMap['id'] = productId;
+
+    _products.add(Product.fromMap(productMap));
+    notifyListeners();
   }
 
   void deleteProduct(Product product) {
