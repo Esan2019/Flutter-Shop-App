@@ -20,6 +20,36 @@ class Product {
         _imageUrl = imageUrl,
         _isFavorite = isFavorite ?? false;
 
+  Product.fromMap(Map<String, Object> map)
+      : _id = map['id'],
+        _title = map['title'],
+        _description = map['description'],
+        _price = map['price'],
+        _imageUrl = map['imageUrl'],
+        _isFavorite = map['isFavorite'];
+
+  String get id => _id;
+
+  String get title => _title;
+
+  String get description => _description;
+
+  double get price => _price;
+
+  String get imageUrl => _imageUrl;
+
+  bool get isFavorite => _isFavorite;
+
+  Map<String, Object> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'price': price,
+      'imageUrl': imageUrl,
+      'isFavorite': isFavorite,
+    };
+  }
+
   Product copyWith({
     String id,
     String title,
@@ -37,18 +67,6 @@ class Product {
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
-
-  String get id => _id;
-
-  String get title => _title;
-
-  String get description => _description;
-
-  double get price => _price;
-
-  String get imageUrl => _imageUrl;
-
-  bool get isFavorite => _isFavorite;
 
   void toggleFavoriteStatus() {
     _isFavorite = !_isFavorite;
