@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 
 import '../size_config.dart';
 import '../constants.dart';
@@ -27,6 +26,7 @@ class _EditProductState extends State<EditProduct> {
   final _imageUrlController = TextEditingController();
   final _descriptionFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
+  bool _isPerformingDatabaseOperation = false;
 
   @override
   void initState() {
@@ -50,22 +50,21 @@ class _EditProductState extends State<EditProduct> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_isFormValid()) {
       _formKey.currentState.save();
 
       final product = widget._product;
       final productsProvider = Provider.of<Products>(context, listen: false);
 
+      setState(() => _isPerformingDatabaseOperation = true);
+
       if (productsProvider.contains(product)) {
         productsProvider.editProduct(product);
       } else {
-        productsProvider.addProduct(
-          product.copyWith(
-            id: Random().nextInt(2000).toString(),
-          ),
-        );
+        await productsProvider.addProduct(product);
       }
+
       Navigator.of(context).pop();
     }
   }
@@ -120,124 +119,134 @@ class _EditProductState extends State<EditProduct> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar produto')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            onWillPop: () => _showExitDialog(context),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  height: SizeConfig.getHeightPercentage(40),
-                  width: SizeConfig.getWidthPercentage(100),
-                  padding: const EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).accentColor,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(_imageUrlController.text),
-                      onError: (_, stackTrace) {},
-                    ),
-                  ),
-                  alignment: Alignment.bottomLeft,
+      appBar: _isPerformingDatabaseOperation
+          ? null
+          : AppBar(title: const Text('Editar produto')),
+      body: _isPerformingDatabaseOperation
+          ? Center(child: Lottie.asset('assets/animations/bouncy-balls.json'))
+          : SafeArea(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  onWillPop: () => _showExitDialog(context),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextFormField(
-                        style: productCardPriceStyle,
-                        textInputAction: TextInputAction.next,
-                        focusNode: _titleFocusNode,
-                        validator: _validateTitle,
-                        initialValue: widget._product.title,
-                        onSaved: (title) => _setProductTitle(title),
-                        onFieldSubmitted: (_) =>
-                            FocusScope.of(context).nextFocus(),
-                        decoration: const InputDecoration(
-                          labelText: 'Título do produto',
-                          labelStyle: productCardPriceStyle,
-                          border: InputBorder.none,
+                      Container(
+                        height: SizeConfig.getHeightPercentage(40),
+                        width: SizeConfig.getWidthPercentage(100),
+                        padding: const EdgeInsets.only(left: 10),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(_imageUrlController.text),
+                            onError: (_, stackTrace) {},
+                          ),
+                        ),
+                        alignment: Alignment.bottomLeft,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextFormField(
+                              style: productCardPriceStyle,
+                              textInputAction: TextInputAction.next,
+                              focusNode: _titleFocusNode,
+                              validator: _validateTitle,
+                              initialValue: widget._product.title,
+                              onSaved: (title) => _setProductTitle(title),
+                              onFieldSubmitted: (_) =>
+                                  FocusScope.of(context).nextFocus(),
+                              decoration: const InputDecoration(
+                                labelText: 'Título do produto',
+                                labelStyle: productCardPriceStyle,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                            TextFormField(
+                              onFieldSubmitted: (_) =>
+                                  FocusScope.of(context).nextFocus(),
+                              onSaved: (price) => _setProductPrice(price),
+                              focusNode: _priceFocusNode,
+                              controller: _priceController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                signed: true,
+                              ),
+                              textInputAction: TextInputAction.next,
+                              style: productCardTitleStyle,
+                              decoration: const InputDecoration(
+                                labelText: 'Preço',
+                                prefixText: 'R\$',
+                                prefixStyle: productCardTitleStyle,
+                                labelStyle: productCardTitleStyle,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      TextFormField(
-                        onFieldSubmitted: (_) =>
-                            FocusScope.of(context).nextFocus(),
-                        onSaved: (price) => _setProductPrice(price),
-                        focusNode: _priceFocusNode,
-                        controller: _priceController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                        ),
-                        textInputAction: TextInputAction.next,
-                        style: productCardTitleStyle,
-                        decoration: const InputDecoration(
-                          labelText: 'Preço',
-                          prefixText: 'R\$',
-                          prefixStyle: productCardTitleStyle,
-                          labelStyle: productCardTitleStyle,
-                          border: InputBorder.none,
-                        ),
+                      Column(
+                        children: [
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: TextFormField(
+                                validator: _validateImageUrl,
+                                controller: _imageUrlController,
+                                onSaved: (imageUrl) =>
+                                    _setProductImageUrl(imageUrl),
+                                onFieldSubmitted: (_) =>
+                                    FocusScope.of(context).nextFocus(),
+                                focusNode: _imageUrlFocusNode,
+                                textInputAction: TextInputAction.next,
+                                decoration: const InputDecoration(
+                                  labelText: 'URL da imagem',
+                                  border: InputBorder.none,
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: TextFormField(
+                                focusNode: _descriptionFocusNode,
+                                validator: _validateDescription,
+                                initialValue: widget._product.description,
+                                onSaved: (desc) => _setProductDescription(desc),
+                                maxLines: 6,
+                                scrollPhysics: const BouncingScrollPhysics(),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  labelText: 'Descrição do produto',
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  children: [
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: TextFormField(
-                          validator: _validateImageUrl,
-                          controller: _imageUrlController,
-                          onSaved: (imageUrl) => _setProductImageUrl(imageUrl),
-                          onFieldSubmitted: (_) =>
-                              FocusScope.of(context).nextFocus(),
-                          focusNode: _imageUrlFocusNode,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'URL da imagem',
-                            border: InputBorder.none,
-                            labelStyle: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: TextFormField(
-                          focusNode: _descriptionFocusNode,
-                          validator: _validateDescription,
-                          initialValue: widget._product.description,
-                          onSaved: (desc) => _setProductDescription(desc),
-                          maxLines: 6,
-                          scrollPhysics: const BouncingScrollPhysics(),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            labelText: 'Descrição do produto',
-                            labelStyle: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: RaisedButton(
-        child: const Text(
-          'SALVAR PRODUTO',
-          style: const TextStyle(color: Colors.white),
-        ),
-        shape: const Border(),
-        onPressed: _submitForm,
-        color: Theme.of(context).accentColor,
-        padding: const EdgeInsets.all(18),
-      ),
+      bottomNavigationBar: _isPerformingDatabaseOperation
+          ? null
+          : RaisedButton(
+              child: const Text(
+                'SALVAR PRODUTO',
+                style: const TextStyle(color: Colors.white),
+              ),
+              shape: const Border(),
+              onPressed: _submitForm,
+              color: Theme.of(context).accentColor,
+              padding: const EdgeInsets.all(18),
+            ),
     );
   }
 }
