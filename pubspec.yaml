@@ -29,7 +29,7 @@ flutter:
     - assets/animations/woman-with-bags.json
     - assets/animations/404.json
     - assets/animations/bag.json
-    - assets/animations/spinner.json
+    - assets/animations/bouncy-balls.json
     - assets/images/pink-tree.jpg
  
   fonts:
