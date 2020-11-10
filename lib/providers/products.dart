@@ -78,7 +78,7 @@ class Products with ChangeNotifier {
 
       _products.add(Product.fromMap(productMap));
       notifyListeners();
-      return Future.delayed(Duration(seconds: 8));
+      return Future.value();
     } on http.ClientException {
       throw 'Não foi possível estabelecer uma conexão com o servidor. Verifique se você possui conexão com a internet.';
     }
