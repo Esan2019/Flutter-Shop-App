@@ -27,6 +27,7 @@ flutter:
   assets:
     - assets/animations/no-favorites.json
     - assets/animations/woman-with-bags.json
+    - assets/animations/404.json
     - assets/animations/bag.json
     - assets/images/pink-tree.jpg
  
