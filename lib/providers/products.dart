@@ -40,7 +40,6 @@ class Products with ChangeNotifier {
     http.Response response;
 
     try {
-      print(1);
       response = await http.get(_productsUrl);
     } on http.ClientException {
       throw ('Não foi possível carregar os produtos. Verifique se você possui conexão com a internet.');
@@ -49,6 +48,10 @@ class Products with ChangeNotifier {
     final products = json.decode(response.body) as Map<String, dynamic>;
 
     final List<Product> fetchedProducts = [];
+
+    if (products == null) {
+      return;
+    }
 
     products.forEach((productId, productMap) {
       productMap['id'] = productId;
