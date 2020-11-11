@@ -15,6 +15,7 @@ class UserProducts extends StatelessWidget {
   Widget build(BuildContext context) {
     final productsProvider = Provider.of<Products>(context);
     final products = productsProvider.products;
+    ScaffoldState scaffold;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,7 +29,9 @@ class UserProducts extends StatelessWidget {
       ),
       drawer: MainDrawer(),
       body: LayoutBuilder(
-        builder: (_, constraints) {
+        builder: (ctx, constraints) {
+          scaffold = Scaffold.of(ctx);
+
           return RefreshIndicator(
             onRefresh: Provider.of<Products>(context, listen: false)
                 .fetchProductsFromDatabase,
@@ -103,7 +106,20 @@ class UserProducts extends StatelessWidget {
                                       ),
                                     ),
                                     onPressed: () {
-                                      productsProvider.deleteProduct(product.id);
+                                      productsProvider
+                                          .deleteProduct(product.id)
+                                          .catchError(
+                                        (error) {
+                                          scaffold.showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                error,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
                                       Navigator.of(ctx).pop();
                                     },
                                   ),
