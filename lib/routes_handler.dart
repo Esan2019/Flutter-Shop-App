@@ -44,9 +44,13 @@ class RoutesHandler {
         return _navigate(UserProducts());
 
       case editProduct:
-        final product = settings.arguments as Product;
+        final arguments = settings.arguments as Map<String, dynamic>;
+        final product = arguments['product'];
+        final scaffold = arguments['ancestorScaffold'];
+
         if (product != null) {
-          return _navigate(EditProduct(product: product));
+          return _navigate(
+              EditProduct(product: product, ancestorScaffold: scaffold));
         } else {
           return _navigate(EditProduct());
         }

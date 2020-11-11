@@ -11,8 +11,12 @@ import '../providers/products.dart';
 
 class EditProduct extends StatefulWidget {
   var _product;
+  final ScaffoldState ancestorScaffold;
 
-  EditProduct({Product product}) : _product = product ?? Product();
+  EditProduct({
+    Product product,
+    this.ancestorScaffold,
+  }) : _product = product ?? Product();
 
   @override
   _EditProductState createState() => _EditProductState();
@@ -55,19 +59,27 @@ class _EditProductState extends State<EditProduct> {
       _formKey.currentState.save();
 
       final product = widget._product;
-      
+
       final productsProvider = Provider.of<Products>(context, listen: false);
 
       if (productsProvider.contains(product)) {
-        productsProvider.editProduct(product).catchError((error) {});
+        productsProvider.editProduct(product).catchError((error) {
+          _showSnackBarInAncestorScaffold(error);
+        });
       } else {
         setState(() => _isPerformingDatabaseOperation = true);
 
-        await productsProvider.addProduct(product);
+        await productsProvider.addProduct(product).catchError((error) {
+          _showSnackBarInAncestorScaffold(error);
+        });
       }
 
       Navigator.of(context).pop();
     }
+  }
+
+  void _showSnackBarInAncestorScaffold(String content) {
+    widget.ancestorScaffold.showSnackBar(SnackBar(content: Text(content)));
   }
 
   bool _isFormValid() {

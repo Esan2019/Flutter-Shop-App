@@ -59,7 +59,10 @@ class UserProducts extends StatelessWidget {
                         onRightSwipe: () {
                           Navigator.of(context).pushNamed(
                             editProduct,
-                            arguments: product,
+                            arguments: {
+                              'product': product,
+                              'ancestorScaffold': scaffold,
+                            },
                           );
                         },
                         rightSwipeBackground: const GestureBackground(
