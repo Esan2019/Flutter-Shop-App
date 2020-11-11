@@ -49,15 +49,13 @@ class Products with ChangeNotifier {
 
     final List<Product> fetchedProducts = [];
 
-    if (products == null) {
-      return;
+    if (products != null) {
+      products.forEach((productId, productMap) {
+        productMap['id'] = productId;
+        fetchedProducts.add(Product.fromMap(productMap));
+      });
     }
-
-    products.forEach((productId, productMap) {
-      productMap['id'] = productId;
-      fetchedProducts.add(Product.fromMap(productMap));
-    });
-
+    
     _products = fetchedProducts;
     notifyListeners();
   }
