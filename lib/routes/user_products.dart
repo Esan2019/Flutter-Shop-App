@@ -23,7 +23,10 @@ class UserProducts extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => Navigator.of(context).pushNamed(editProduct),
+            onPressed: () => Navigator.of(context).pushNamed(
+              editProduct,
+              arguments: scaffold,
+            ),
           )
         ],
       ),
@@ -33,8 +36,18 @@ class UserProducts extends StatelessWidget {
           scaffold = Scaffold.of(ctx);
 
           return RefreshIndicator(
-            onRefresh: Provider.of<Products>(context, listen: false)
-                .fetchProductsFromDatabase,
+            onRefresh: () async {
+              await Provider.of<Products>(context, listen: false)
+                  .fetchProductsFromDatabase()
+                  .catchError((error) {
+                scaffold.showSnackBar(SnackBar(
+                  content: Text(
+                    error,
+                    textAlign: TextAlign.center,
+                  ),
+                ));
+              });
+            },
             child: !productsProvider.hasAtLeastOneProduct
                 ? SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),

@@ -45,14 +45,15 @@ class RoutesHandler {
 
       case editProduct:
         final arguments = settings.arguments as Map<String, dynamic>;
-        final product = arguments['product'];
         final scaffold = arguments['ancestorScaffold'];
 
-        if (product != null) {
-          return _navigate(
-              EditProduct(product: product, ancestorScaffold: scaffold));
+        if (arguments.containsKey('product')) {
+          return _navigate(EditProduct(
+            product: arguments['product'],
+            ancestorScaffold: scaffold,
+          ));
         } else {
-          return _navigate(EditProduct());
+          return _navigate(EditProduct(ancestorScaffold: scaffold));
         }
     }
   }
