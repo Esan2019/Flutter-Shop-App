@@ -50,7 +50,7 @@ class Products with ChangeNotifier {
         _replaceProduct(product, oldProduct);
         throw 'Não foi possível editar o produto. Verifique se este produto não foi deletado antes de você salvar suas alterações';
       }
-    } on http.ClientException {
+    } catch (error) {
       _replaceProduct(product, oldProduct);
       throw 'Não foi possível editar o produto. Verifique se você possui conexão com a internet';
     }
@@ -61,7 +61,7 @@ class Products with ChangeNotifier {
 
     try {
       response = await http.get(_productsUrl);
-    } on http.ClientException {
+    } catch (error) {
       throw ('Não foi possível carregar os produtos. Verifique se você possui conexão com a internet.');
     }
 
@@ -89,7 +89,7 @@ class Products with ChangeNotifier {
 
     try {
       response = await http.post(_productsUrl, body: json.encode(productMap));
-    } on http.ClientException {
+    } catch (error) {
       throw 'Não foi possível estabelecer uma conexão com o servidor. Verifique se você possui conexão com a internet.';
     }
 
@@ -115,7 +115,7 @@ class Products with ChangeNotifier {
 
     try {
       await http.delete(url);
-    } on http.ClientException {
+    } catch (error) {
       _insertProductAtIndex(existingProduct, existingProductIndex);
       throw 'Não foi possível deletar o produto. Verifique se você possui conexão com a internet.';
     }
