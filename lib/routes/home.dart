@@ -61,74 +61,90 @@ class Home extends StatelessWidget {
               builder: (_, productsProvider, child) {
                 final products = productsProvider.products;
 
-                if (!productsProvider.hasAtLeastOneProduct) {
-                  return NoProductsWarning();
-                } else {
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(top: 0),
-                    itemCount: products.length,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (_, index) {
-                      final product = products.elementAt(index);
-
-                      return Consumer2<Products, Cart>(
-                        builder: (ctx, products, cart, child) {
-                          final isInCart = cart.contains(product);
-                          final isFavorite = product.isFavorite;
-                          final removeItem = cart.removeProduct;
-                          final addItem = cart.addProduct;
-
-                          return ProductCardGestures(
-                            key: ValueKey<String>(product.id),
-                            child: ProductCard(
-                              product,
-                              icons: _getIcons(
-                                isFavorite: isFavorite,
-                                isInCart: isInCart,
+                return LayoutBuilder(
+                  builder: (_, constraints) {
+                    return RefreshIndicator(
+                      onRefresh: Provider.of<Products>(context, listen: false)
+                          .fetchProductsFromDatabase,
+                      child: !productsProvider.hasAtLeastOneProduct
+                          ? SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: Container(
+                                height: constraints.maxHeight,
+                                child: NoProductsWarning(),
                               ),
-                            ),
-                            onTap: () => Navigator.of(context).pushNamed(
-                              productOverviewRoute,
-                              arguments: product,
-                            ),
-                            onDoubleTap: () =>
-                                products.toggleFavoriteStatus(product),
-                            onRightSwipe: () {
-                              if (isInCart) {
-                                removeItem(product);
-                                _showSnackbar(ctx, 'Removido da sacolinha!',
-                                    () => addItem(product));
-                              } else {
-                                addItem(product);
-                                _showSnackbar(
-                                  ctx,
-                                  'Salvo na sacolinha!',
-                                  () => removeItem(product),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.only(top: 0),
+                              itemCount: products.length,
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (_, index) {
+                                final product = products.elementAt(index);
+
+                                return Consumer2<Products, Cart>(
+                                  builder: (ctx, products, cart, child) {
+                                    final isInCart = cart.contains(product);
+                                    final isFavorite = product.isFavorite;
+                                    final removeItem = cart.removeProduct;
+                                    final addItem = cart.addProduct;
+
+                                    return ProductCardGestures(
+                                      key: ValueKey<String>(product.id),
+                                      child: ProductCard(
+                                        product,
+                                        icons: _getIcons(
+                                          isFavorite: isFavorite,
+                                          isInCart: isInCart,
+                                        ),
+                                      ),
+                                      onTap: () =>
+                                          Navigator.of(context).pushNamed(
+                                        productOverviewRoute,
+                                        arguments: product,
+                                      ),
+                                      onDoubleTap: () => products
+                                          .toggleFavoriteStatus(product),
+                                      onRightSwipe: () {
+                                        if (isInCart) {
+                                          removeItem(product);
+                                          _showSnackbar(
+                                              ctx,
+                                              'Removido da sacolinha!',
+                                              () => addItem(product));
+                                        } else {
+                                          addItem(product);
+                                          _showSnackbar(
+                                            ctx,
+                                            'Salvo na sacolinha!',
+                                            () => removeItem(product),
+                                          );
+                                        }
+                                      },
+                                      rightSwipeBackground: isInCart
+                                          ? GestureBackground(
+                                              icon: Icons.shopping_bag,
+                                              label: 'Remover da sacolinha',
+                                              color: const Color(0xFFF5C6BC),
+                                              backgroundColor:
+                                                  const Color(0xFFF2804E),
+                                              alignment: Alignment.centerLeft,
+                                            )
+                                          : GestureBackground(
+                                              icon: Icons.shopping_bag,
+                                              label: 'Salvar na sacolinha',
+                                              color: const Color(0xFFF5BCE4),
+                                              backgroundColor:
+                                                  Theme.of(context).accentColor,
+                                              alignment: Alignment.centerLeft,
+                                            ),
+                                    );
+                                  },
                                 );
-                              }
-                            },
-                            rightSwipeBackground: isInCart
-                                ? GestureBackground(
-                                    icon: Icons.shopping_bag,
-                                    label: 'Remover da sacolinha',
-                                    color: const Color(0xFFF5C6BC),
-                                    backgroundColor: const Color(0xFFF2804E),
-                                    alignment: Alignment.centerLeft,
-                                  )
-                                : GestureBackground(
-                                    icon: Icons.shopping_bag,
-                                    label: 'Salvar na sacolinha',
-                                    color: const Color(0xFFF5BCE4),
-                                    backgroundColor:
-                                        Theme.of(context).accentColor,
-                                    alignment: Alignment.centerLeft,
-                                  ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                }
+                              },
+                            ),
+                    );
+                  },
+                );
               },
             );
           }
