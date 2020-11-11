@@ -26,12 +26,12 @@ class Products with ChangeNotifier {
 
   void toggleFavoriteStatus(Product product) {
     _getProductById(product.id).toggleFavoriteStatus();
-    
+
     notifyListeners();
   }
 
   Future<void> editProduct(Product product) async {
-    final url = '${firebaseDatabaseUrl}products/${product.id}.jso';
+    final url = '${firebaseDatabaseUrl}products/${product.id}.json';
 
     final productMap = product.toMap()..remove('id')..remove('isFavorite');
 
@@ -103,10 +103,27 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProduct(String id) {
-    _products.removeWhere((product) => product.id == id);
+  Future<void> deleteProduct(String id) async {
+    final url = '${firebaseDatabaseUrl}products/$id.json';
 
-    notifyListeners();
+    // For fallback in case of errors
+    final existingProductIndex = _getProductIndexById(id);
+    final existingProduct = _getProductById(id);
+
+    // Make changes locally first for better performance
+    _deleteProduct(id);
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode != 200) {
+        _insertProductAtIndex(existingProduct, existingProductIndex);
+        throw 'Não foi possível deletar o produto. Provavelmente o mesmo já foi deletado por outro usuário';
+      }
+    } on http.ClientException {
+      _insertProductAtIndex(existingProduct, existingProductIndex);
+      throw 'Não foi possível deletar o produto. Verifique se você possui conexão com a internet.';
+    }
   }
 
   bool contains(Product product) {
@@ -131,6 +148,18 @@ class Products with ChangeNotifier {
     final oldProductIndex = _getProductIndexById(oldProduct.id);
 
     _products[oldProductIndex] = newProduct;
+
+    notifyListeners();
+  }
+
+  void _deleteProduct(String id) {
+    _products.removeWhere((product) => product.id == id);
+
+    notifyListeners();
+  }
+
+  void _insertProductAtIndex(Product product, int index) {
+    _products.insert(index, product);
 
     notifyListeners();
   }
