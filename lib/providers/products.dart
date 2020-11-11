@@ -114,12 +114,7 @@ class Products with ChangeNotifier {
     _deleteProduct(id);
 
     try {
-      final response = await http.delete(url);
-
-      if (response.statusCode != 200) {
-        _insertProductAtIndex(existingProduct, existingProductIndex);
-        throw 'Não foi possível deletar o produto. Provavelmente o mesmo já foi deletado por outro usuário';
-      }
+      await http.delete(url);
     } on http.ClientException {
       _insertProductAtIndex(existingProduct, existingProductIndex);
       throw 'Não foi possível deletar o produto. Verifique se você possui conexão com a internet.';
