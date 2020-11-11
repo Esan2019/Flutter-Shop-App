@@ -55,13 +55,14 @@ class _EditProductState extends State<EditProduct> {
       _formKey.currentState.save();
 
       final product = widget._product;
+      
       final productsProvider = Provider.of<Products>(context, listen: false);
 
-      setState(() => _isPerformingDatabaseOperation = true);
-
       if (productsProvider.contains(product)) {
-        productsProvider.editProduct(product);
+        productsProvider.editProduct(product).catchError((error) {});
       } else {
+        setState(() => _isPerformingDatabaseOperation = true);
+
         await productsProvider.addProduct(product);
       }
 

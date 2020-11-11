@@ -103,7 +103,7 @@ class UserProducts extends StatelessWidget {
                                       ),
                                     ),
                                     onPressed: () {
-                                      productsProvider.deleteProduct(product);
+                                      productsProvider.deleteProduct(product.id);
                                       Navigator.of(ctx).pop();
                                     },
                                   ),

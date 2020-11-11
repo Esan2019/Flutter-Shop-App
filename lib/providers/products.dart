@@ -25,15 +25,35 @@ class Products with ChangeNotifier {
   }
 
   void toggleFavoriteStatus(Product product) {
-    _getProductByIndex(_getProductIndex(product))..toggleFavoriteStatus();
+    _getProductById(product.id).toggleFavoriteStatus();
+    
     notifyListeners();
   }
 
-  void editProduct(Product product) {
-    final productIndex = _getProductIndexById(product.id);
-    deleteProduct(_getProductByIndex(productIndex));
-    _products.insert(productIndex, product);
-    notifyListeners();
+  Future<void> editProduct(Product product) async {
+    final url = '${firebaseDatabaseUrl}products/${product.id}.jso';
+
+    final productMap = product.toMap()..remove('id')..remove('isFavorite');
+
+    final encodedProduct = json.encode(productMap);
+
+    // For fallback in case of errors
+    final oldProduct = _getProductById(product.id);
+
+    // Make changes locally first for better performance
+    _replaceProduct(oldProduct, product);
+
+    try {
+      var response = await http.patch(url, body: encodedProduct);
+
+      if (response.statusCode != 200) {
+        _replaceProduct(product, oldProduct);
+        throw 'Não foi possível editar o produto. Verifique se este produto não foi deletado antes de você salvar suas alterações';
+      }
+    } on http.ClientException {
+      _replaceProduct(product, oldProduct);
+      throw 'Não foi possível editar o produto. Verifique se você possui conexão com a internet';
+    }
   }
 
   Future<void> fetchProductsFromDatabase() async {
@@ -52,11 +72,13 @@ class Products with ChangeNotifier {
     if (products != null) {
       products.forEach((productId, productMap) {
         productMap['id'] = productId;
+
         fetchedProducts.add(Product.fromMap(productMap));
       });
     }
-    
+
     _products = fetchedProducts;
+
     notifyListeners();
   }
 
@@ -81,15 +103,19 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProduct(Product product) {
-    _products.remove(product);
+  void deleteProduct(String id) {
+    _products.removeWhere((product) => product.id == id);
+
     notifyListeners();
   }
 
   bool contains(Product product) {
     if (product.id == null) return false;
+
     final prod = _getProductById(product.id);
+
     if (prod == null) return false;
+
     return true;
   }
 
@@ -97,16 +123,15 @@ class Products with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
-  Product _getProductByIndex(int index) {
-    return _products.elementAt(index);
-  }
-
   int _getProductIndexById(String id) {
-    final product = _getProductById(id);
-    return _products.indexOf(product);
+    return _products.indexWhere((product) => product.id == id);
   }
 
-  int _getProductIndex(Product product) {
-    return _products.indexOf(product);
+  void _replaceProduct(Product oldProduct, Product newProduct) {
+    final oldProductIndex = _getProductIndexById(oldProduct.id);
+
+    _products[oldProductIndex] = newProduct;
+
+    notifyListeners();
   }
 }
