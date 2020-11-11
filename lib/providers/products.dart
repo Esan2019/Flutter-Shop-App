@@ -44,15 +44,10 @@ class Products with ChangeNotifier {
     _replaceProduct(oldProduct, product);
 
     try {
-      var response = await http.patch(url, body: encodedProduct);
-
-      if (response.statusCode != 200) {
-        _replaceProduct(product, oldProduct);
-        throw 'Não foi possível editar o produto. Verifique se este produto não foi deletado antes de você salvar suas alterações';
-      }
+      await http.patch(url, body: encodedProduct);
     } catch (error) {
       _replaceProduct(product, oldProduct);
-      throw 'Não foi possível editar o produto. Verifique se você possui conexão com a internet';
+      throw 'Não foi possível editar o produto. Verifique se você possui conexão com a internet.';
     }
   }
 
