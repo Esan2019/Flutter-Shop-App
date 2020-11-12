@@ -47,7 +47,7 @@ class Products with ChangeNotifier {
       await http.patch(url, body: encodedProduct);
     } catch (error) {
       _replaceProduct(product, oldProduct);
-      throw 'Não foi possível editar o produto. Verifique se você possui conexão com a internet.';
+      throw 'Não foi possível editar o produto.\nVerifique se você possui conexão com a internet.';
     }
   }
 
@@ -56,25 +56,25 @@ class Products with ChangeNotifier {
 
     try {
       response = await http.get(_productsUrl);
+
+      final products = json.decode(response.body) as Map<String, dynamic>;
+
+      final List<Product> fetchedProducts = [];
+
+      if (products != null) {
+        products.forEach((productId, productMap) {
+          productMap['id'] = productId;
+
+          fetchedProducts.add(Product.fromMap(productMap));
+        });
+      }
+
+      _products = fetchedProducts;
+
+      notifyListeners();
     } catch (error) {
-      throw ('Não foi possível carregar os produtos. Verifique se você possui conexão com a internet.');
+      throw ('Não foi possível carregar os produtos.\nVerifique se você possui conexão com a internet.');
     }
-
-    final products = json.decode(response.body) as Map<String, dynamic>;
-
-    final List<Product> fetchedProducts = [];
-
-    if (products != null) {
-      products.forEach((productId, productMap) {
-        productMap['id'] = productId;
-
-        fetchedProducts.add(Product.fromMap(productMap));
-      });
-    }
-
-    _products = fetchedProducts;
-
-    notifyListeners();
   }
 
   Future<void> addProduct(Product product) async {
@@ -85,7 +85,7 @@ class Products with ChangeNotifier {
     try {
       response = await http.post(_productsUrl, body: json.encode(productMap));
     } catch (error) {
-      throw 'Não foi possível estabelecer uma conexão com o servidor. Verifique se você possui conexão com a internet.';
+      throw 'Não foi possível estabelecer uma conexão com o servidor.\nVerifique se você possui conexão com a internet.';
     }
 
     if (response.statusCode != 200)
@@ -112,7 +112,7 @@ class Products with ChangeNotifier {
       await http.delete(url);
     } catch (error) {
       _insertProductAtIndex(existingProduct, existingProductIndex);
-      throw 'Não foi possível deletar o produto. Verifique se você possui conexão com a internet.';
+      throw 'Não foi possível deletar o produto.\nVerifique se você possui conexão com a internet.';
     }
   }
 
