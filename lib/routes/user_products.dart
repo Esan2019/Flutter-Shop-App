@@ -25,7 +25,7 @@ class UserProducts extends StatelessWidget {
             icon: Icon(Icons.add),
             onPressed: () => Navigator.of(context).pushNamed(
               editProduct,
-              arguments: scaffold,
+              arguments: {'ancestorScaffold': scaffold},
             ),
           )
         ],
