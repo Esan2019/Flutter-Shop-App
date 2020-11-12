@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../size_config.dart';
 import '../../models/product.dart';
 import '../../constants.dart';
+import '../fallback_product_image.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -16,15 +17,23 @@ class ProductCard extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       child: Stack(
         children: [
-          Container(
-            width: double.infinity,
+          FadeInImage.assetNetwork(
+            width: SizeConfig.screenWidth,
             height: SizeConfig.getHeightPercentage(50),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(product.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
+            placeholder: fallbackImagePath,
+            image: product.imageUrl,
+            fit: BoxFit.cover,
+            imageErrorBuilder: (ctx, error, stacktrace) {
+              return FallbackProductImage(
+                width: SizeConfig.screenWidth,
+                height: SizeConfig.getHeightPercentage(50),
+                alignment: Alignment.center,
+                style: productCardTitleStyle.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                overlay: Colors.black26,
+              );
+            },
           ),
           Positioned(
             bottom: 0,
