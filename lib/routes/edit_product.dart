@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_masked_text/flutter_masked_text.dart';
@@ -8,9 +10,10 @@ import '../size_config.dart';
 import '../constants.dart';
 import '../models/product.dart';
 import '../providers/products.dart';
+import '../widgets/fallback_product_image.dart';
 
 class EditProduct extends StatefulWidget {
-  var _product;
+  final _product;
   final ScaffoldState ancestorScaffold;
 
   EditProduct({
@@ -30,16 +33,30 @@ class _EditProductState extends State<EditProduct> {
   final _imageUrlController = TextEditingController();
   final _descriptionFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
+  Product _product;
+  Products _productsProvider;
   bool _isPerformingDatabaseOperation = false;
+  bool _isEditingAnExistingProduct;
+  final _previewImageKey = GlobalKey<_PreviewImageState>();
+  _PreviewImage _previewImage;
 
   @override
   void initState() {
-    _priceController.text = widget._product.price.toStringAsFixed(2);
-    _imageUrlController.text = widget._product.imageUrl ?? '';
+    _productsProvider = Provider.of<Products>(context, listen: false);
+    _product = widget._product;
+    _isEditingAnExistingProduct = _productsProvider.contains(_product);
+    _priceController.text = _product.price.toStringAsFixed(2);
+    _imageUrlController.text = _product.imageUrl ?? '';
+    
+    _previewImage = _PreviewImage(
+      initialUrl: _imageUrlController.text,
+      key: _previewImageKey,
+    );
 
     _imageUrlFocusNode.addListener(() {
-      if (!_imageUrlFocusNode.hasFocus) setState(() {});
+      if (!_imageUrlFocusNode.hasFocus) _updatePreviewImage();
     });
+
     super.initState();
   }
 
@@ -49,58 +66,57 @@ class _EditProductState extends State<EditProduct> {
     _priceFocusNode.dispose();
     _priceController.dispose();
     _imageUrlFocusNode.dispose();
-    _imageUrlController.dispose();
     _descriptionFocusNode.dispose();
     super.dispose();
   }
 
   void _submitForm() async {
-    if (_isFormValid()) {
-      _formKey.currentState.save();
+    final form = _formKey.currentState;
+    final isFormValid = form.validate();
 
-      final product = widget._product;
+    if (!isFormValid) return;
 
-      final productsProvider = Provider.of<Products>(context, listen: false);
+    form.save();
 
-      if (productsProvider.contains(product)) {
-        productsProvider.editProduct(product).catchError((error) {
-          _showSnackBarInAncestorScaffold(error);
-        });
-      } else {
-        setState(() => _isPerformingDatabaseOperation = true);
-
-        await productsProvider.addProduct(product).catchError((error) {
-          _showSnackBarInAncestorScaffold(error);
-        });
-      }
-
-      Navigator.of(context).pop();
+    if (_isEditingAnExistingProduct) {
+      _productsProvider.editProduct(_product).catchError((error) {
+        _showSnackBarInAncestorScaffold(error);
+      });
     }
+
+    if (!_isEditingAnExistingProduct) {
+      setState(() => _isPerformingDatabaseOperation = true);
+
+      await _productsProvider.addProduct(_product).catchError((error) {
+        _showSnackBarInAncestorScaffold(error);
+      });
+    }
+
+    Navigator.of(context).pop();
   }
 
   void _showSnackBarInAncestorScaffold(String content) {
     widget.ancestorScaffold.showSnackBar(SnackBar(content: Text(content)));
   }
 
-  bool _isFormValid() {
-    return _formKey.currentState.validate();
-  }
-
   void _setProductTitle(String title) {
-    widget._product = widget._product.copyWith(title: title);
+    _product = _product.copyWith(title: title);
   }
 
   void _setProductPrice(String price) {
-    widget._product =
-        widget._product.copyWith(price: _convertPriceToDouble(price));
+    _product = _product.copyWith(price: _convertPriceToDouble(price));
   }
 
   void _setProductDescription(String description) {
-    widget._product = widget._product.copyWith(description: description);
+    _product = _product.copyWith(description: description);
   }
 
   void _setProductImageUrl(String imageUrl) {
-    widget._product = widget._product.copyWith(imageUrl: imageUrl);
+    _product = _product.copyWith(imageUrl: imageUrl);
+  }
+
+  void _updatePreviewImage() {
+    _previewImageKey.currentState.updatePreview(_imageUrlController.text);
   }
 
   String _validateTitle(String title) {
@@ -129,138 +145,189 @@ class _EditProductState extends State<EditProduct> {
     }
   }
 
+  TextFormField _generateFormField({
+    @required String labelText,
+    String prefixText,
+    TextEditingController controller,
+    String initialValue,
+    FocusNode focusNode,
+    int maxLines = 1,
+    TextInputType keyboardType,
+    TextInputAction textInputAction,
+    String Function(String) validator,
+    void Function(String) onSaved,
+    void Function(String) onFieldSubmitted,
+  }) {
+    return TextFormField(
+      cursorColor: Theme.of(context).accentColor,
+      maxLines: maxLines,
+      initialValue: initialValue,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        fillColor: Theme.of(context).primaryColor,
+        filled: true,
+        labelText: labelText,
+        prefixText: prefixText,
+        labelStyle: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
+      onSaved: onSaved,
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction ?? TextInputAction.next,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _isPerformingDatabaseOperation
-          ? null
-          : AppBar(title: const Text('Editar produto')),
       body: _isPerformingDatabaseOperation
           ? Center(child: Lottie.asset('assets/animations/bouncy-balls.json'))
           : SafeArea(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  onWillPop: () => _showExitDialog(context),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        height: SizeConfig.getHeightPercentage(40),
-                        width: SizeConfig.getWidthPercentage(100),
-                        padding: const EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).accentColor,
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(_imageUrlController.text),
-                            onError: (_, stackTrace) {},
+              child: Form(
+                key: _formKey,
+                onWillPop: () => _showExitDialog(context),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          height: SizeConfig.getHeightPercentage(30),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(fallbackImagePath),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: _previewImage,
+                        ),
+                        SizedBox(height: 8),
+                        _generateFormField(
+                          labelText: 'Título do produto',
+                          initialValue: _product.title,
+                          validator: _validateTitle,
+                          focusNode: _titleFocusNode,
+                          onSaved: _setProductTitle,
+                          onFieldSubmitted: (_) =>
+                              _priceFocusNode.requestFocus(),
+                        ),
+                        SizedBox(height: 8),
+                        _generateFormField(
+                          labelText: 'Preço do produto',
+                          prefixText: 'R\$',
+                          controller: _priceController,
+                          focusNode: _priceFocusNode,
+                          onSaved: _setProductPrice,
+                          onFieldSubmitted: (_) =>
+                              _imageUrlFocusNode.requestFocus(),
+                          keyboardType: TextInputType.numberWithOptions(
+                            signed: true,
                           ),
                         ),
-                        alignment: Alignment.bottomLeft,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextFormField(
-                              style: productCardPriceStyle,
-                              textInputAction: TextInputAction.next,
-                              focusNode: _titleFocusNode,
-                              validator: _validateTitle,
-                              initialValue: widget._product.title,
-                              onSaved: (title) => _setProductTitle(title),
-                              onFieldSubmitted: (_) =>
-                                  FocusScope.of(context).nextFocus(),
-                              decoration: const InputDecoration(
-                                labelText: 'Título do produto',
-                                labelStyle: productCardPriceStyle,
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            TextFormField(
-                              onFieldSubmitted: (_) =>
-                                  FocusScope.of(context).nextFocus(),
-                              onSaved: (price) => _setProductPrice(price),
-                              focusNode: _priceFocusNode,
-                              controller: _priceController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                signed: true,
-                              ),
-                              textInputAction: TextInputAction.next,
-                              style: productCardTitleStyle,
-                              decoration: const InputDecoration(
-                                labelText: 'Preço',
-                                prefixText: 'R\$',
-                                prefixStyle: productCardTitleStyle,
-                                labelStyle: productCardTitleStyle,
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ],
+                        SizedBox(height: 8),
+                        _generateFormField(
+                          labelText: 'URL da imagem',
+                          validator: _validateImageUrl,
+                          controller: _imageUrlController,
+                          focusNode: _imageUrlFocusNode,
+                          onSaved: _setProductImageUrl,
+                          onFieldSubmitted: (_) =>
+                              _descriptionFocusNode.requestFocus(),
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextFormField(
-                                validator: _validateImageUrl,
-                                controller: _imageUrlController,
-                                onSaved: (imageUrl) =>
-                                    _setProductImageUrl(imageUrl),
-                                onFieldSubmitted: (_) =>
-                                    FocusScope.of(context).nextFocus(),
-                                focusNode: _imageUrlFocusNode,
-                                textInputAction: TextInputAction.next,
-                                decoration: const InputDecoration(
-                                  labelText: 'URL da imagem',
-                                  border: InputBorder.none,
-                                  labelStyle:
-                                      const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextFormField(
-                                focusNode: _descriptionFocusNode,
-                                validator: _validateDescription,
-                                initialValue: widget._product.description,
-                                onSaved: (desc) => _setProductDescription(desc),
-                                maxLines: 6,
-                                scrollPhysics: const BouncingScrollPhysics(),
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  labelText: 'Descrição do produto',
-                                  labelStyle:
-                                      const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        SizedBox(height: 8),
+                        _generateFormField(
+                          labelText: 'Descrição do produto',
+                          initialValue: _product.description,
+                          maxLines: 10,
+                          validator: _validateDescription,
+                          focusNode: _descriptionFocusNode,
+                          textInputAction: TextInputAction.newline,
+                          onSaved: _setProductDescription,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-      bottomNavigationBar: _isPerformingDatabaseOperation
-          ? null
-          : RaisedButton(
-              child: const Text(
-                'SALVAR PRODUTO',
-                style: const TextStyle(color: Colors.white),
-              ),
-              shape: const Border(),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            RaisedButton(
+              child: Text('Descartar'),
+              textColor: Colors.white,
+              onPressed: () => Navigator.of(context).maybePop(),
+              color: Colors.red,
+            ),
+            RaisedButton(
+              child: Text('Salvar produto'),
+              textColor: Colors.white,
               onPressed: _submitForm,
               color: Theme.of(context).accentColor,
-              padding: const EdgeInsets.all(18),
             ),
+          ],
+        ),
+      ),
     );
+  }
+}
+
+class _PreviewImage extends StatefulWidget {
+  final String initialUrl;
+  const _PreviewImage({this.initialUrl, Key key}) : super(key: key);
+
+  @override
+  _PreviewImageState createState() => _PreviewImageState();
+}
+
+class _PreviewImageState extends State<_PreviewImage> {
+  String imageUrl;
+  bool canLoadImage = true;
+
+  @override
+  void initState() {
+    imageUrl = widget.initialUrl;
+    super.initState();
+  }
+
+  void updatePreview(String newUrl) => setState(() {
+        imageUrl = newUrl;
+        canLoadImage = true;
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    return canLoadImage
+        ? Image(
+            image: NetworkImage(imageUrl),
+            width: SizeConfig.screenWidth,
+            height: SizeConfig.getHeightPercentage(30),
+            fit: BoxFit.cover,
+            errorBuilder: (ctx, error, stackTrace) {
+              Future.delayed(
+                Duration.zero,
+                () => setState(() => canLoadImage = false),
+              );
+              return Container();
+            },
+          )
+        : FallbackProductImage(
+            width: SizeConfig.screenWidth,
+            height: SizeConfig.getHeightPercentage(30),
+            alignment: Alignment.center,
+            overlay: Colors.black26,
+            style: productCardPriceStyle,
+          );
   }
 }
 
@@ -273,7 +340,7 @@ double _convertPriceToDouble(String price) {
 }
 
 Future<bool> _showExitDialog(BuildContext context) async {
-  return showDialog(
+  return await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
       title: const Text('Sair sem salvar?'),
