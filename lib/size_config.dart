@@ -18,7 +18,7 @@ class SizeConfig {
 
   static void init(BuildContext context) {
     mediaQuery = MediaQuery.of(context);
-    screenHeight = mediaQuery.size.height;
+    screenHeight = mediaQuery.size.height - mediaQuery.padding.top;
     screenWidth = mediaQuery.size.width;
     orientation = mediaQuery.orientation;
     textScaleFactor = mediaQuery.textScaleFactor;
