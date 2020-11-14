@@ -6,8 +6,10 @@ import '../size_config.dart';
 import '../models/product.dart';
 import '../providers/cart.dart';
 import '../providers/products.dart';
+import '../widgets/fallback_product_image.dart';
+import '../constants.dart';
 
-const whitishColor = const Color(0xFFebebeb);
+Product globalProduct;
 
 class ProductOverview extends StatelessWidget {
   final Product product;
@@ -16,49 +18,140 @@ class ProductOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
-    final productsProvider = Provider.of<Products>(context);
+    globalProduct = product;
+    final labelStyle = TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      color: Colors.black.withOpacity(0.65),
+    );
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
           children: [
-            ////// PRODUCT IMAGE //////
-            Container(
-              height: SizeConfig.getHeightPercentage(68),
+            Image.network(
+              product.imageUrl,
+              height: SizeConfig.getHeightPercentage(83),
               width: SizeConfig.screenWidth,
-              child: Stack(
-                children: [
-                  Container(
-                    height: SizeConfig.getHeightPercentage(64),
-                    width: SizeConfig.screenWidth,
-                    child: Image.network(product.imageUrl, fit: BoxFit.cover),
-                  ),
-                  FavoriteButton(
-                    () => productsProvider.toggleFavoriteStatus(product),
-                    product.isFavorite,
-                  ),
-                ],
-              ),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return FallbackProductImage(
+                  height: SizeConfig.getHeightPercentage(83),
+                  width: SizeConfig.screenWidth,
+                  overlay: Colors.black54,
+                  alignment: Alignment.center,
+                  style: productCardPriceStyle,
+                );
+              },
             ),
-            SizedBox(height: SizeConfig.getHeightPercentage(0.5)),
-
-            ////// PRODUCT TITLE //////
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              // 0.755
-              height: SizeConfig.getHeightPercentage(7),
-              child: FittedBox(
-                child: Text(
-                  product.title,
-                  style: TextStyle(fontWeight: FontWeight.w500),
+              height: SizeConfig.getHeightPercentage(100),
+              child: NotificationListener<OverscrollIndicatorNotification>(
+                onNotification: (overscroll) {
+                  overscroll.disallowGlow();
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(height: SizeConfig.getHeightPercentage(80)),
+                      Container(
+                        height: SizeConfig.getHeightPercentage(70),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          boxShadow: [
+                            BoxShadow(color: Colors.black54, blurRadius: 6),
+                          ],
+                          borderRadius: const BorderRadius.only(
+                            topLeft: const Radius.circular(15),
+                            topRight: const Radius.circular(15),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                product.title,
+                                softWrap: true,
+                                textAlign: TextAlign.center,
+                                style: productCardPriceStyle.copyWith(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Consumer<Cart>(
+                                  builder: (ctx, cart, child) {
+                                    final isInCart = cart.contains(product);
+
+                                    return _ActionButton(
+                                      isColored: isInCart,
+                                      icon: Icons.shopping_bag,
+                                      color: Colors.green,
+                                      onTap: isInCart
+                                          ? cart.removeProduct
+                                          : cart.addProduct,
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(20),
+                                        bottomRight: Radius.circular(20),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Text(
+                                  'R\$${product.price.toStringAsFixed(2).replaceAll('.', ',')}',
+                                  style: labelStyle,
+                                ),
+                                Consumer<Products>(
+                                  builder: (ctx, products, child) {
+                                    return _ActionButton(
+                                      isColored: product.isFavorite,
+                                      icon: Icons.favorite,
+                                      color: Colors.pinkAccent,
+                                      iconLeftPositioned: true,
+                                      onTap: products.toggleFavoriteStatus,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        bottomLeft: Radius.circular(20),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 40),
+                            Text(
+                              'Mais informações',
+                              style: labelStyle.copyWith(color: Colors.black45),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
+                              alignment: Alignment.center,
+                              height: SizeConfig.getHeightPercentage(35),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  product.description,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Spacer(),
-
-            AddToCartButton(product),
-            SizedBox(height: SizeConfig.getHeightPercentage(1))
           ],
         ),
       ),
@@ -66,104 +159,53 @@ class ProductOverview extends StatelessWidget {
   }
 }
 
-class FavoriteButton extends StatefulWidget {
-  final Function onPressed;
-  final bool isFavorite;
-  FavoriteButton(this.onPressed, this.isFavorite);
+class _ActionButton extends StatelessWidget {
+  final bool isColored;
+  final bool iconLeftPositioned;
+  final IconData icon;
+  final BorderRadius borderRadius;
+  final Color color;
+  final void Function(Product) onTap;
 
-  @override
-  _FavoriteButtonState createState() => _FavoriteButtonState();
-}
+  const _ActionButton({
+    @required this.isColored,
+    @required this.icon,
+    @required this.borderRadius,
+    @required this.color,
+    @required this.onTap,
+    this.iconLeftPositioned = false,
+  })  : assert(isColored != null),
+        assert(icon != null),
+        assert(borderRadius != null),
+        assert(color != null),
+        assert(onTap != null);
 
-class _FavoriteButtonState extends State<FavoriteButton> {
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      right: 10,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).accentColor,
-          borderRadius: BorderRadius.circular(60),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF404040), blurRadius: 6),
-          ],
-        ),
-        height: SizeConfig.getHeightPercentage(8),
-        width: SizeConfig.getHeightPercentage(8),
-        child: IconButton(
-          color: whitishColor,
-          splashRadius: 0.01,
-          onPressed: () => setState(widget.onPressed),
-          icon: Icon(
-            Icons.favorite,
-            color: widget.isFavorite ? Colors.pinkAccent : whitishColor,
-          ),
-        ),
-      ),
+    final iconWidget = Icon(
+      icon,
+      color: isColored ? color : Colors.grey,
     );
-  }
-}
-
-class AddToCartButton extends StatelessWidget {
-  final Product product;
-  const AddToCartButton(this.product);
-
-  @override
-  Widget build(BuildContext context) {
-    final cartProvider = Provider.of<Cart>(context);
-    final isInCart = cartProvider.contains(product);
 
     return GestureDetector(
-      onTap: () {
-        if (isInCart) {
-          cartProvider.removeProduct(product);
-        } else {
-          cartProvider.addProduct(product);
-        }
-      },
+      onTap: () => onTap(globalProduct),
       child: Container(
-        height: SizeConfig.getHeightPercentage(8),
-        width: SizeConfig.getWidthPercentage(90),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(10),
+        height: 50,
+        width: 80,
         decoration: BoxDecoration(
-          color: isInCart
-              ? const Color(0xFFF2804E)
-              : Theme.of(context).accentColor,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF505050), blurRadius: 6),
-          ],
+          color: isColored
+              ? color.withOpacity(0.4)
+              : Colors.white.withOpacity(0.7),
+          borderRadius: borderRadius,
         ),
         child: Row(
-          mainAxisAlignment: isInCart
-              ? MainAxisAlignment.center
-              : MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.shopping_bag,
-                  color: isInCart ? const Color(0xFFF5C6BC) : whitishColor,
-                ),
-                Text(
-                  isInCart ? 'Remover da sacolinha' : 'Salvar na sacolinha',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isInCart ? const Color(0xFFF5C6BC) : whitishColor,
-                  ),
-                ),
-              ],
-            ),
-            isInCart
-                ? Container()
-                : Text(
-                    '(R\$${product.price.toStringAsFixed(2)})',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: whitishColor,
-                    ),
-                  ),
+            if (iconLeftPositioned) iconWidget,
+            if (isColored) Icon(Icons.remove_circle),
+            if (!isColored) Icon(Icons.add_circle, color: Colors.grey),
+            if (!iconLeftPositioned) iconWidget,
           ],
         ),
       ),
