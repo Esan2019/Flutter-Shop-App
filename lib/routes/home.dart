@@ -97,7 +97,7 @@ class Home extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 0),
                               itemCount: products.length,
                               physics: const BouncingScrollPhysics(),
-                              itemBuilder: (_, index) {
+                              itemBuilder: (ctx, index) {
                                 final product = products.elementAt(index);
 
                                 return Consumer2<Products, Cart>(
@@ -121,8 +121,23 @@ class Home extends StatelessWidget {
                                         productOverviewRoute,
                                         arguments: product,
                                       ),
-                                      onDoubleTap: () => products
-                                          .toggleFavoriteStatus(product),
+                                      onDoubleTap: () async {
+                                        try {
+                                          await products
+                                              .toggleFavoriteStatus(product);
+                                        } catch (error) {
+                                          Scaffold.of(ctx)
+                                              .hideCurrentSnackBar();
+                                          Scaffold.of(ctx).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                error,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
                                       onRightSwipe: () {
                                         if (isInCart) {
                                           removeItem(product);

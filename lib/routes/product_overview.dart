@@ -165,7 +165,7 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final BorderRadius borderRadius;
   final Color color;
-  final void Function(Product) onTap;
+  final Function(Product) onTap;
 
   const _ActionButton({
     @required this.isColored,
@@ -188,7 +188,16 @@ class _ActionButton extends StatelessWidget {
     );
 
     return GestureDetector(
-      onTap: () => onTap(globalProduct),
+      onTap: () async {
+        try {
+          await onTap(globalProduct);
+        } catch (error) {
+          Scaffold.of(context).hideCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(
+            SnackBar(content: Text(error, textAlign: TextAlign.center)),
+          );
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(10),
         height: 50,

@@ -24,10 +24,25 @@ class Products with ChangeNotifier {
     return _products.where((product) => product.isFavorite).toList();
   }
 
-  void toggleFavoriteStatus(Product product) {
-    _getProductById(product.id).toggleFavoriteStatus();
+  Future<void> toggleFavoriteStatus(Product product) async {
+    final url = '${firebaseDatabaseUrl}products/${product.id}.json';
 
+    // Make changes locally first for better performance
+    product.toggleFavoriteStatus();
     notifyListeners();
+
+    try {
+      await http.patch(
+        url,
+        body: json.encode({'isFavorite': product.isFavorite}),
+      );
+    } catch (e) {
+      // Fallback in case of errors
+      product.toggleFavoriteStatus();
+      notifyListeners();
+
+      throw 'Não foi possível alterar o status de favorito.\nVerifique se você possui conexão com a internet.';
+    }
   }
 
   Future<void> editProduct(Product product) async {
@@ -46,7 +61,9 @@ class Products with ChangeNotifier {
     try {
       await http.patch(url, body: encodedProduct);
     } catch (error) {
+      // Fallback in case of errors
       _replaceProduct(product, oldProduct);
+
       throw 'Não foi possível editar o produto.\nVerifique se você possui conexão com a internet.';
     }
   }
@@ -111,7 +128,9 @@ class Products with ChangeNotifier {
     try {
       await http.delete(url);
     } catch (error) {
+      // Fallback in case of errors
       _insertProductAtIndex(existingProduct, existingProductIndex);
+
       throw 'Não foi possível deletar o produto.\nVerifique se você possui conexão com a internet.';
     }
   }
@@ -126,6 +145,12 @@ class Products with ChangeNotifier {
     return true;
   }
 
+  void _deleteProduct(String id) {
+    _products.removeWhere((product) => product.id == id);
+
+    notifyListeners();
+  }
+
   Product _getProductById(String id) {
     return _products.firstWhere((product) => product.id == id);
   }
@@ -138,12 +163,6 @@ class Products with ChangeNotifier {
     final oldProductIndex = _getProductIndexById(oldProduct.id);
 
     _products[oldProductIndex] = newProduct;
-
-    notifyListeners();
-  }
-
-  void _deleteProduct(String id) {
-    _products.removeWhere((product) => product.id == id);
 
     notifyListeners();
   }
