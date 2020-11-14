@@ -64,8 +64,27 @@ class Home extends StatelessWidget {
                 return LayoutBuilder(
                   builder: (_, constraints) {
                     return RefreshIndicator(
-                      onRefresh: Provider.of<Products>(context, listen: false)
-                          .fetchProductsFromDatabase,
+                      onRefresh: () async {
+                        await Provider.of<Products>(context, listen: false)
+                            .fetchProductsFromDatabase()
+                            .catchError((error) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (alertContext) => AlertDialog(
+                              title: Text('Erro inesperado'),
+                              content: Text(error, textAlign: TextAlign.center),
+                              actions: [
+                                FlatButton(
+                                  child: Text('Entendi'),
+                                  onPressed: () =>
+                                      Navigator.of(alertContext).pop(),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                      },
                       child: !productsProvider.hasAtLeastOneProduct
                           ? SingleChildScrollView(
                               physics: const AlwaysScrollableScrollPhysics(),
