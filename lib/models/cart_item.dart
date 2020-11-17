@@ -25,7 +25,7 @@ class CartItem {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'product': product.toMap(),
+      'product': product.toMap()..putIfAbsent('id', () => id),
       'quantity': quantity,
       'totalValue': totalValue,
     };
