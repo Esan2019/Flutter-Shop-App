@@ -17,11 +17,13 @@ class CartItems extends StatelessWidget {
     cart = Provider.of<Cart>(context);
 
     return Scaffold(
-      backgroundColor: cart.isEmpty
-          ? Theme.of(context).scaffoldBackgroundColor
-          : Theme.of(context).accentColor,
-      body: cart.isEmpty ? EmptyCartWarning() : CartScreen(),
-    );
+        backgroundColor: cart.isEmpty
+            ? Theme.of(context).scaffoldBackgroundColor
+            : Theme.of(context).accentColor,
+        body: SafeArea(
+          child: cart.isEmpty ? EmptyCartWarning() : CartScreen(),
+        ),
+        bottomNavigationBar: cart.isEmpty ? null : Footer());
   }
 }
 
@@ -32,7 +34,6 @@ class CartScreen extends StatelessWidget {
       children: [
         Header(),
         ItemsList(),
-        Footer(),
       ],
     );
   }
@@ -42,7 +43,8 @@ class ItemsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 15,
+      elevation: 10,
+      shadowColor: Colors.black54,
       color: const Color(0xFFc447fc),
       child: Container(
         height: SizeConfig.getHeightPercentage(63),
@@ -158,23 +160,61 @@ class Footer extends StatelessWidget {
                 ],
               ),
             ),
-            RaisedButton(
-              color: Colors.pinkAccent,
-              child: Text(
-                'PAGAR',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.yellow,
-                ),
-              ),
-              onPressed: () {
-                orders.createOrder(cart.items);
-                cart.clear();
-              },
-            ),
+            PayButton(orders: orders),
           ],
         ),
       ),
+    );
+  }
+}
+
+class PayButton extends StatefulWidget {
+  const PayButton({@required this.orders});
+
+  final Orders orders;
+
+  @override
+  _PayButtonState createState() => _PayButtonState();
+}
+
+class _PayButtonState extends State<PayButton> {
+  bool isProcessingPayment = false;
+
+  void processPayment() async {
+    toggleProcessingStatus();
+
+    try {
+      await widget.orders.createOrder(cart.items);
+
+      cart.clear();
+    } catch (e) {
+      toggleProcessingStatus();
+
+      Scaffold.of(context).hideCurrentSnackBar();
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e, textAlign: TextAlign.center),
+        ),
+      );
+    }
+  }
+
+  void toggleProcessingStatus() {
+    setState(() => isProcessingPayment = !isProcessingPayment);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      color: Colors.pinkAccent,
+      child: Text(
+        isProcessingPayment ? 'PROCESSANDO...' : 'PAGAR',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.yellow,
+        ),
+      ),
+      onPressed: isProcessingPayment ? null : processPayment,
     );
   }
 }
