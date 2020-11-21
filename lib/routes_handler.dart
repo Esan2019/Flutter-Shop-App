@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import './routes/welcome_setup/welcome_screen.dart';
+import './routes/welcome_setup/auth_screen.dart';
 import './routes/home.dart';
 import './routes/product_overview.dart';
 import './routes/favorites.dart';
@@ -9,7 +11,9 @@ import './routes/user_products.dart';
 import './routes/edit_product.dart';
 import './models/product.dart';
 
-const homeRoute = '/';
+const welcomeRoute = '/';
+const authRoute = '/auth';
+const homeRoute = '/home';
 const productOverviewRoute = '/product-overview';
 const favoritesRoute = '/favorites';
 const cartItemsRoute = '/cart-itens';
@@ -24,6 +28,13 @@ class RoutesHandler {
 
   static Route<dynamic> handleRoute(RouteSettings settings) {
     switch (settings.name) {
+      case welcomeRoute:
+      return _navigate(WelcomeScreen());
+
+      case authRoute:
+      final isRegistering = settings.arguments as bool;
+      return _navigate(AuthScreen(isRegistering));
+
       case homeRoute:
         return _navigate(Home());
 

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'routes_handler.dart';
+import 'constants.dart';
 import './providers/products.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
@@ -25,7 +26,7 @@ class ShopApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Shop App',
+        title: shopName,
         theme: ThemeData(
           primaryColor: const Color(0xFFeebdff),
           accentColor: const Color(0xFFB12FEB),
@@ -35,7 +36,7 @@ class ShopApp extends StatelessWidget {
           cardTheme: CardTheme(color: const Color(0xFFeebdff), elevation: 7),
         ),
         onGenerateRoute: RoutesHandler.handleRoute,
-        initialRoute: homeRoute,
+        initialRoute: welcomeRoute,
       ),
     );
   }
