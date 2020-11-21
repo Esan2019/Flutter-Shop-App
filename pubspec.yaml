@@ -25,11 +25,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/animations/no-favorites.json
-    - assets/animations/woman-with-bags.json
-    - assets/animations/404.json
-    - assets/animations/bag.json
-    - assets/animations/bouncy-balls.json
+    - assets/animations/
     - assets/images/pink-tree.jpg
  
   fonts:
