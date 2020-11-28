@@ -34,4 +34,6 @@ const productCardPriceStyle = TextStyle(
 
 const fallbackImagePath = 'assets/images/pink-tree.jpg';
 
+const firebaseWebApi = 'AIzaSyAVGLCKFLA80LjjZL8Gl9-k5kUvQaRg-tM';
+
 const firebaseDatabaseUrl = 'https://flutter-shop-app-433bb.firebaseio.com/';
