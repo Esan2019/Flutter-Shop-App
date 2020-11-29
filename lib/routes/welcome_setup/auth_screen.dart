@@ -8,6 +8,8 @@ import '../../size_config.dart';
 import '../../constants.dart';
 import '../../routes_handler.dart';
 import '../../providers/auth.dart';
+import '../../exceptions/firebase_exception.dart';
+import '../../exceptions/http_exception.dart';
 
 class AuthScreen extends StatelessWidget {
   final bool isRegistering;
@@ -92,13 +94,15 @@ class AuthForm extends StatefulWidget {
 class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
   final _passwordFocusNode = FocusNode();
+  final _passwordController = TextEditingController();
   final _confirmPasswordFocusNode = FocusNode();
-  String email, password, confirmPassword;
+  String email, confirmPassword;
 
   @override
   void dispose() {
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -108,17 +112,40 @@ class _AuthFormState extends State<AuthForm> {
 
     if (!isFormValid) return;
 
+    _formKey.currentState.save();
+
     try {
       if (widget.isRegistering) {
-        await authProvider.signUp(email, password);
+        await authProvider.signUp(email, _passwordController.text);
       } else {
-        await authProvider.signIn(email, password);
+        await authProvider.signIn(email, _passwordController.text);
       }
 
       Navigator.of(context).pushReplacementNamed(homeRoute);
-    } catch (error) {
-      // TODO: implement proper error handling
-      print(error);
+    } on FirebaseException catch (error) {
+      String message =
+          'Ocorreu um erro inesperado em nossos servidores. Tente novamente mais tarde.';
+      final errorMessage = error.toString();
+
+      if (errorMessage.contains('MISSING_EMAIL') ||
+          errorMessage.contains('MISSING_PASSWORD') ||
+          errorMessage.contains('EMAIL_NOT_FOUND') ||
+          errorMessage.contains('INVALID_PASSWORD')) {
+        message =
+            'O endereço de email ou a senha que você digitou estão incorretos, ou não pertencem a nenhuma conta ainda.';
+      } else if (errorMessage.contains('INVALID_EMAIL')) {
+        message =
+            'Você precisa fornecer um endereço de email válido, caso contrário, não conseguiremos entrar em contato com você.';
+      } else if (errorMessage.contains('WEAK_PASSWORD')) {
+        message =
+            'Por motivos de segurança, a sua senha precisa ter no mínimo 6 caracteres.';
+      } else if (errorMessage.contains('EMAIL_EXISTS')) {
+        message =
+            'O endereço de email que você informou ($email) já está associado à outra conta.';
+      }
+      showAlertDialog(message);
+    } on HttpException catch (error) {
+      showAlertDialog(error.toString());
     }
   }
 
@@ -138,6 +165,26 @@ class _AuthFormState extends State<AuthForm> {
     }
   }
 
+  void showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          content: Text(message, textAlign: TextAlign.center),
+          actions: [
+            FlatButton(
+              child: Text(
+                'Entendi',
+                style: TextStyle(color: Theme.of(context).accentColor),
+              ),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -153,8 +200,8 @@ class _AuthFormState extends State<AuthForm> {
                     ? 'Digite seu melhor email'
                     : 'Digite seu email',
                 validator: validateEmail,
+                onSaved: (value) => email = value,
                 onFieldSubmitted: (value) {
-                  email = value;
                   _passwordFocusNode.requestFocus();
                 },
                 keyboardType: TextInputType.emailAddress,
@@ -166,9 +213,8 @@ class _AuthFormState extends State<AuthForm> {
                     ? 'Crie uma senha segura'
                     : 'Digite sua senha',
                 validator: validatePassword,
+                controller: _passwordController,
                 onFieldSubmitted: (value) {
-                  password = value;
-
                   if (widget.isRegistering) {
                     _confirmPasswordFocusNode.requestFocus();
                   } else {
@@ -189,14 +235,14 @@ class _AuthFormState extends State<AuthForm> {
                   focusNode: _confirmPasswordFocusNode,
                   obscureText: true,
                   validator: (value) {
-                    if (value != password) {
+                    if (value != _passwordController.text) {
                       return 'Ops, parece que as duas senhas são diferentes. Tente novamente.';
                     } else {
                       return null;
                     }
                   },
-                  onFieldSubmitted: (value) {
-                    confirmPassword = value;
+                  onSaved: (value) => confirmPassword = value,
+                  onFieldSubmitted: (_) {
                     _submitForm();
                   },
                 ),
@@ -219,9 +265,11 @@ class _AuthFormState extends State<AuthForm> {
     bool obscureText = false,
     FocusNode focusNode,
     Function(String) onFieldSubmitted,
+    onSaved,
     String Function(String) validator,
     TextInputType keyboardType,
     TextInputAction textInputAction,
+    TextEditingController controller,
   }) {
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
@@ -234,6 +282,8 @@ class _AuthFormState extends State<AuthForm> {
       textInputAction: textInputAction,
       keyboardType: keyboardType,
       onFieldSubmitted: onFieldSubmitted,
+      controller: controller,
+      onSaved: onSaved,
       validator: validator,
       decoration: InputDecoration(
         filled: true,
