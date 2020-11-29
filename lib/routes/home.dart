@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
 import '../size_config.dart';
+import '../constants.dart';
 import '../widgets/product_card/product_card.dart';
 import '../widgets/product_card/product_card_gestures.dart';
 import '../widgets/product_card/gesture_background.dart';
@@ -12,36 +13,45 @@ import '../widgets/badge.dart';
 import '../widgets/no_products_warning.dart';
 import '../providers/products.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 import '../routes_handler.dart';
 
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
+    final isAuth = Provider.of<Auth>(context, listen: false).isAuth;
 
     final appBar = AppBar(
-      title: Text('Shop App'),
+      title: Text(shopName),
       actions: [
-        Consumer<Cart>(
-          builder: (_, cart, child) => Badge(
-            child: child,
-            value: cart.totalItemsCount,
-          ),
-          child: FlatButton(
-            child: Row(
-              children: [
-                Icon(Icons.shopping_bag),
-                Text('Sacolinha'),
-              ],
-            ),
-            onPressed: () => Navigator.pushNamed(context, cartItemsRoute),
-          ),
-        ),
+        isAuth
+            ? Consumer<Cart>(
+                builder: (_, cart, child) => Badge(
+                  child: child,
+                  value: cart.totalItemsCount,
+                ),
+                child: FlatButton(
+                  child: Row(
+                    children: [
+                      Icon(Icons.shopping_bag),
+                      Text('Sacolinha'),
+                    ],
+                  ),
+                  onPressed: () => Navigator.pushNamed(context, cartItemsRoute),
+                ),
+              )
+            : FlatButton(
+                child: Text('ENTRAR OU CRIAR UMA CONTA'),
+                onPressed: () {
+                  Navigator.of(context).pushReplacementNamed(welcomeRoute);
+                },
+              ),
       ],
     );
 
     return Scaffold(
-      drawer: MainDrawer(),
+      drawer: isAuth ? MainDrawer() : null,
       appBar: appBar,
       body: FutureBuilder(
         future: Provider.of<Products>(context, listen: false)
