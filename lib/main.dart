@@ -8,6 +8,7 @@ import 'constants.dart';
 import './providers/products.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
+import './providers/auth.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,7 @@ class ShopApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => Products()),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProvider(create: (_) => Orders()),
+        ChangeNotifierProvider(create: (_) => Auth()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -33,7 +35,10 @@ class ShopApp extends StatelessWidget {
           appBarTheme: AppBarTheme(color: const Color(0xFFeebdff)),
           scaffoldBackgroundColor: const Color(0xFFf5d9ff),
           fontFamily: 'Quicksand',
-          cardTheme: CardTheme(color: const Color(0xFFeebdff), elevation: 7),
+          cardTheme: CardTheme(
+            color: const Color(0xFFeebdff),
+            elevation: 7,
+          ),
         ),
         onGenerateRoute: RoutesHandler.handleRoute,
         initialRoute: welcomeRoute,
