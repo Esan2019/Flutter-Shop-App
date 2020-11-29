@@ -14,15 +14,23 @@ class Auth with ChangeNotifier {
   String _token, _userId;
   DateTime _expiryDate;
 
+  String get userId => _userId;
+
+  String get token {
+    if (isAuth) {
+      return _token;
+    } else {
+      return null;
+    }
+  }
+
   bool get isAuth {
-    if (token == null) return false;
+    if (_token == null || _userId == null) return false;
     if (_isExpired) return false;
     return true;
   }
 
   bool get _isExpired => DateTime.now().isAfter(_expiryDate);
-
-  String get token => _token;
 
   Future<void> signUp(String email, String password) {
     return _authenticate(email, password, 'signUp');
