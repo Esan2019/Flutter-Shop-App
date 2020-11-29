@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
+import '../exceptions/firebase_exception.dart';
+import '../exceptions/http_exception.dart';
 
 const _baseAuthUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 
@@ -40,22 +42,28 @@ class Auth with ChangeNotifier {
 
     try {
       final response = await http.post(url, body: payload);
-
       final decodedResponse = json.decode(response.body);
+      final errorOccurred = decodedResponse['error'] != null;
 
-      final expiryDateInSeconds = int.parse(decodedResponse['expiresIn']);
-      final now = DateTime.now();
+      if (errorOccurred) {
+        throw FirebaseException(decodedResponse['error']['message']);
+      }
+
+      final tokenValidityInSeconds = int.parse(decodedResponse['expiresIn']);
+      final tokenValidity = Duration(seconds: tokenValidityInSeconds);
+      final tokenExpiryDate = DateTime.now().add(tokenValidity);
 
       _token = decodedResponse['idToken'];
       _userId = decodedResponse['localId'];
-
-      // Extracted 2 seconds just to be sure it'll never try to use an
-      // expired token
-      _expiryDate = now.add(Duration(seconds: expiryDateInSeconds - 2));
+      _expiryDate = tokenExpiryDate;
+    } on FirebaseException {
+      rethrow;
     } catch (error) {
-      throw error;
+      throw HttpException(
+        'Não foi possível se conectar. Verifique se você possui uma conexão com a internet.',
+      );
     }
-    
+
     notifyListeners();
   }
 
