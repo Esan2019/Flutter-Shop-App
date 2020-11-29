@@ -10,11 +10,14 @@ import './auth.dart';
 
 class Products with ChangeNotifier {
   List<Product> _products = [];
-  final String _productsUrl;
+  final String _productsUrl, _favoritesUrl;
   final Auth _authProvider;
 
   Products(this._authProvider)
-      : _productsUrl = firebaseDatabaseUrl + 'products.json?auth=${_authProvider.token}';
+      : _productsUrl =
+            firebaseDatabaseUrl + 'products.json?auth=${_authProvider.token}',
+        _favoritesUrl =
+            '${firebaseDatabaseUrl}userFavorites/${_authProvider.userId}';
 
   bool get hasAnyFavorite => favoriteProducts.length >= 1;
 
@@ -29,16 +32,16 @@ class Products with ChangeNotifier {
   }
 
   Future<void> toggleFavoriteStatus(Product product) async {
-    final url = '${firebaseDatabaseUrl}products/${product.id}.json?auth=${_authProvider.token}';
+    final url = '$_favoritesUrl/${product.id}.json?auth=${_authProvider.token}';
 
     // Make changes locally first for better performance
     product.toggleFavoriteStatus();
     notifyListeners();
 
     try {
-      await http.patch(
+      await http.put(
         url,
-        body: json.encode({'isFavorite': product.isFavorite}),
+        body: json.encode(product.isFavorite),
       );
     } catch (e) {
       // Fallback in case of errors
@@ -50,9 +53,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> editProduct(Product product) async {
-    final url = '${firebaseDatabaseUrl}products/${product.id}.json?auth=${_authProvider.token}';
+    final url =
+        '${firebaseDatabaseUrl}products/${product.id}.json?auth=${_authProvider.token}';
 
-    final productMap = product.toMap()..remove('id')..remove('isFavorite');
+    final productMap = product.toMap();
 
     final encodedProduct = json.encode(productMap);
 
@@ -76,15 +80,31 @@ class Products with ChangeNotifier {
     http.Response response;
 
     try {
-      response = await http.get(_productsUrl);
+      final favoritesUrl =
+          '${firebaseDatabaseUrl}userFavorites/${_authProvider.userId}.json';
+
+      if (_authProvider.isAuth) {
+        response = await http.get(_productsUrl);
+      } else {
+        response = await http.get(firebaseDatabaseUrl + 'products.json');
+      }
 
       final products = json.decode(response.body) as Map<String, dynamic>;
+
+      final favoritesResponse = await http.get(favoritesUrl);
+      final favorites = json.decode(favoritesResponse.body);
 
       final List<Product> fetchedProducts = [];
 
       if (products != null) {
         products.forEach((productId, productMap) {
           productMap['id'] = productId;
+
+          if (favorites != null) {
+            productMap['isFavorite'] = favorites[productId] ?? false;
+          } else {
+            productMap['isFavorite'] = false;
+          }
 
           fetchedProducts.add(Product.fromMap(productMap));
         });
@@ -120,7 +140,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = '${firebaseDatabaseUrl}products/$id.json?auth=${_authProvider.token}';
+    final url =
+        '${firebaseDatabaseUrl}products/$id.json?auth=${_authProvider.token}';
 
     // For fallback in case of errors
     final existingProductIndex = _getProductIndexById(id);
