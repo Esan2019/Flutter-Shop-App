@@ -6,11 +6,15 @@ import 'package:http/http.dart' as http;
 
 import '../constants.dart';
 import '../models/product.dart';
-
-const _productsUrl = firebaseDatabaseUrl + 'products.json';
+import './auth.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _products;
+  List<Product> _products = [];
+  final String _productsUrl;
+  final Auth _authProvider;
+
+  Products(this._authProvider)
+      : _productsUrl = firebaseDatabaseUrl + 'products.json?auth=${_authProvider.token}';
 
   bool get hasAnyFavorite => favoriteProducts.length >= 1;
 
@@ -25,7 +29,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> toggleFavoriteStatus(Product product) async {
-    final url = '${firebaseDatabaseUrl}products/${product.id}.json';
+    final url = '${firebaseDatabaseUrl}products/${product.id}.json?auth=${_authProvider.token}';
 
     // Make changes locally first for better performance
     product.toggleFavoriteStatus();
@@ -46,7 +50,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> editProduct(Product product) async {
-    final url = '${firebaseDatabaseUrl}products/${product.id}.json';
+    final url = '${firebaseDatabaseUrl}products/${product.id}.json?auth=${_authProvider.token}';
 
     final productMap = product.toMap()..remove('id')..remove('isFavorite');
 
@@ -116,7 +120,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = '${firebaseDatabaseUrl}products/$id.json';
+    final url = '${firebaseDatabaseUrl}products/$id.json?auth=${_authProvider.token}';
 
     // For fallback in case of errors
     final existingProductIndex = _getProductIndexById(id);
