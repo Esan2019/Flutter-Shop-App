@@ -26,7 +26,7 @@ class Product {
         _description = map['description'],
         _price = map['price'],
         _imageUrl = map['imageUrl'],
-        _isFavorite = map['isFavorite'];
+        _isFavorite = map['isFavorite'] ?? false;
 
   String get id => _id;
 
@@ -46,7 +46,6 @@ class Product {
       'description': description,
       'price': price,
       'imageUrl': imageUrl,
-      'isFavorite': isFavorite,
     };
   }
 
