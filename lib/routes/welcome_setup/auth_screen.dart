@@ -228,25 +228,26 @@ class _AuthFormState extends State<AuthForm> {
       borderSide: BorderSide(color: Colors.transparent),
     );
 
-    return Material(
-      type: MaterialType.card,
-      elevation: 5,
-      borderRadius: BorderRadius.circular(15),
-      child: TextFormField(
-        obscureText: obscureText,
-        focusNode: focusNode,
-        textInputAction: textInputAction,
-        keyboardType: keyboardType,
-        onFieldSubmitted: onFieldSubmitted,
-        validator: validator,
-        decoration: InputDecoration(
-          filled: true,
-          border: InputBorder.none,
-          fillColor: Theme.of(context).primaryColor,
-          hintText: text,
-          enabledBorder: border,
-          focusedBorder: border,
+    return TextFormField(
+      obscureText: obscureText,
+      focusNode: focusNode,
+      textInputAction: textInputAction,
+      keyboardType: keyboardType,
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
+      decoration: InputDecoration(
+        filled: true,
+        border: InputBorder.none,
+        fillColor: Theme.of(context).primaryColor,
+        errorStyle: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
         ),
+        errorBorder: border,
+        focusedErrorBorder: border,
+        hintText: text,
+        enabledBorder: border,
+        focusedBorder: border,
       ),
     );
   }
