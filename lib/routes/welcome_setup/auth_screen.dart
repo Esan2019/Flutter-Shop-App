@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:lottie/lottie.dart';
@@ -11,56 +13,99 @@ import '../../providers/auth.dart';
 import '../../exceptions/firebase_exception.dart';
 import '../../exceptions/http_exception.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   final bool isRegistering;
   const AuthScreen(this.isRegistering);
+
+  @override
+  _AuthScreenState createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
 
   void goBackToWelcomeScreen(BuildContext context) {
     Navigator.of(context).pushReplacementNamed(welcomeRoute);
   }
 
   @override
+  void initState() {
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 12),
+    );
+
+    controller.addStatusListener(restartAnimationWhenCompleted);
+
+    final delayToStartAnimation = Duration(seconds: 1);
+    Timer(delayToStartAnimation, () => controller.forward());
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.removeStatusListener(restartAnimationWhenCompleted);
+    controller.dispose();
+    super.dispose();
+  }
+
+  void restartAnimationWhenCompleted(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      controller.forward(from: 0);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        controller.stop();
         goBackToWelcomeScreen(context);
         return true;
       },
-      child: Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Icon(Icons.arrow_back),
-          onPressed: () => goBackToWelcomeScreen(context),
-        ),
-        body: Container(
-          height: SizeConfig.screenHeight + 24,
-          width: SizeConfig.screenWidth,
-          child: Stack(
-            children: [
-              BackgroundAnimation(),
-              Positioned(
-                top: SizeConfig.getHeightPercentage(10),
-                left: 10,
-                right: 10,
-                child: Column(
-                  children: [
-                    Text(
-                      isRegistering ? welcomeOnBoardText : welcomeBackText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 26,
-                        color: Colors.white,
+      child: ListenableProvider<AnimationController>.value(
+        value: controller,
+        child: Scaffold(
+          floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Icon(Icons.arrow_back),
+            onPressed: () => goBackToWelcomeScreen(context),
+          ),
+          body: Container(
+            height: SizeConfig.screenHeight + SizeConfig.mediaQuery.padding.top,
+            width: SizeConfig.screenWidth,
+            child: Stack(
+              overflow: Overflow.visible,
+              children: [
+                BackgroundAnimation(),
+                Positioned(
+                  top: SizeConfig.getHeightPercentage(10),
+                  left: 10,
+                  right: 10,
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.isRegistering
+                            ? welcomeOnBoardText
+                            : welcomeBackText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: SizeConfig.getHeightPercentage(15)),
-                    AuthForm(isRegistering, context),
-                  ],
+                      SizedBox(height: SizeConfig.getHeightPercentage(15)),
+                      AuthForm(widget.isRegistering, context),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -71,12 +116,16 @@ class AuthScreen extends StatelessWidget {
 class BackgroundAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: SizeConfig.screenHeight + 24,
-      width: SizeConfig.screenWidth,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: SizeConfig.screenHeight + SizeConfig.mediaQuery.padding.top,
+        minWidth: SizeConfig.screenWidth,
+      ),
       child: Lottie.asset(
         'assets/animations/floating-in-balloons.json',
         fit: BoxFit.cover,
+        controller: Provider.of<AnimationController>(context, listen: false),
+        frameRate: FrameRate(30),
       ),
     );
   }
