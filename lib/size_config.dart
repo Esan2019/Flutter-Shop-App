@@ -2,9 +2,8 @@ import 'package:flutter/widgets.dart';
 
 class SizeConfig {
   static MediaQueryData mediaQuery;
-  static double screenHeight, screenWidth;
+  static double screenHeight, screenWidth, totalScreenHeight, textScaleFactor;
   static Orientation orientation;
-  static double textScaleFactor;
 
   static bool get isInLandscape => orientation == Orientation.landscape;
 
@@ -19,6 +18,7 @@ class SizeConfig {
   static void init(BuildContext context) {
     mediaQuery = MediaQuery.of(context);
     screenHeight = mediaQuery.size.height - mediaQuery.padding.top;
+    if (totalScreenHeight == null) totalScreenHeight = screenHeight;
     screenWidth = mediaQuery.size.width;
     orientation = mediaQuery.orientation;
     textScaleFactor = mediaQuery.textScaleFactor;
