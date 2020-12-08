@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import 'package:lottie/lottie.dart';
 
 import 'product_card.dart';
 
-class ProductCardGestures extends StatelessWidget {
+class ProductCardGestures extends StatefulWidget {
   final ValueKey<String> key;
 
   final Function onTap;
@@ -28,31 +30,85 @@ class ProductCardGestures extends StatelessWidget {
   });
 
   @override
+  _ProductCardGesturesState createState() => _ProductCardGesturesState();
+}
+
+class _ProductCardGesturesState extends State<ProductCardGestures>
+    with SingleTickerProviderStateMixin {
+  bool animationIsVisible = false;
+  AnimationController controller;
+
+  @override
+  void initState() {
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void showHeartAnimation(bool isFavorite) {
+    if (isFavorite) {
+      toggleAnimationVisibility();
+      controller.forward(from: 0).whenCompleteOrCancel(() {
+        controller.stop();
+        toggleAnimationVisibility();
+      });
+    }
+  }
+
+  void toggleAnimationVisibility() {
+    setState(() => animationIsVisible = !animationIsVisible);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(key),
-      direction: onLeftSwipe != null
+      key: ValueKey(widget.key),
+      direction: widget.onLeftSwipe != null
           ? DismissDirection.horizontal
           : DismissDirection.startToEnd,
       confirmDismiss: (direction) async {
         switch (direction) {
           case DismissDirection.startToEnd:
-            onRightSwipe();
+            widget.onRightSwipe();
             break;
           case DismissDirection.endToStart:
-            onLeftSwipe();
+            widget.onLeftSwipe();
             break;
           default:
             return false;
         }
         return false;
       },
-      background: rightSwipeBackground,
-      secondaryBackground: leftSwipeBackground,
+      background: widget.rightSwipeBackground,
+      secondaryBackground: widget.leftSwipeBackground,
       child: GestureDetector(
-        child: child,
-        onTap: onTap,
-        onDoubleTap: onDoubleTap,
+        child: Stack(
+          children: [
+            widget.child,
+            if (animationIsVisible) Positioned(
+              bottom: 0,
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Lottie.asset(
+                'assets/animations/add-to-favorites.json',
+                frameRate: FrameRate(30),
+                controller: controller,
+              ),
+            )
+          ],
+        ),
+        onTap: widget.onTap,
+        onDoubleTap: () => showHeartAnimation(widget.onDoubleTap()),
       ),
     );
   }

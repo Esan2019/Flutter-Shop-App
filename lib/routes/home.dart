@@ -131,9 +131,9 @@ class Home extends StatelessWidget {
                                         productOverviewRoute,
                                         arguments: product,
                                       ),
-                                      onDoubleTap: () async {
+                                      onDoubleTap: () {
                                         try {
-                                          await products
+                                         return products
                                               .toggleFavoriteStatus(product);
                                         } catch (error) {
                                           Scaffold.of(ctx)

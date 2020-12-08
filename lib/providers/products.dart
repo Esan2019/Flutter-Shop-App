@@ -31,25 +31,21 @@ class Products with ChangeNotifier {
     return _products.where((product) => product.isFavorite).toList();
   }
 
-  Future<void> toggleFavoriteStatus(Product product) async {
+  bool toggleFavoriteStatus(Product product) {
     final url = '$_favoritesUrl/${product.id}.json?auth=${_authProvider.token}';
 
     // Make changes locally first for better performance
     product.toggleFavoriteStatus();
     notifyListeners();
 
-    try {
-      await http.put(
-        url,
-        body: json.encode(product.isFavorite),
-      );
-    } catch (e) {
+    http.put(url, body: json.encode(product.isFavorite)).catchError((error) {
       // Fallback in case of errors
       product.toggleFavoriteStatus();
       notifyListeners();
+      return throw 'Não foi possível alterar o status de favorito.\nVerifique se você possui conexão com a internet.';
+    });
 
-      throw 'Não foi possível alterar o status de favorito.\nVerifique se você possui conexão com a internet.';
-    }
+    return product.isFavorite;
   }
 
   Future<void> editProduct(Product product) async {
