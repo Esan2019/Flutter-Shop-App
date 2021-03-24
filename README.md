@@ -10,6 +10,7 @@ A Flutter cross-platform shop app.
 - Smooth loading from back-end
 - Browser the products catalog anonymously
 - Favorites system
+- Database with Google Firebase
 - Cart & Orders system
 - Admin product management (create, edit, delete products)
 
